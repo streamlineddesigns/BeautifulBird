@@ -3174,7 +3174,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &132594530
 Transform:
   m_ObjectHideFlags: 0
@@ -19541,6 +19541,10 @@ Prefab:
       propertyPath: EnableLinearMovement
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 11400010, guid: ce816f2e6abb0504092c23ed9b970dfd, type: 2}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: ce816f2e6abb0504092c23ed9b970dfd, type: 2}
   m_IsPrefabParent: 0
@@ -20417,6 +20421,8 @@ GameObject:
   - component: {fileID: 761087140}
   - component: {fileID: 761087142}
   - component: {fileID: 761087143}
+  - component: {fileID: 761087145}
+  - component: {fileID: 761087144}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -20480,6 +20486,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OVRController: {fileID: 98049751}
   player: {fileID: 2017230539}
+  playerController: {fileID: 2017230542}
+  playerLookingDirection: {fileID: 1733324946}
+  LeftController: {fileID: 366160886}
+  RightController: {fileID: 2056135649}
 --- !u!82 &761087143
 AudioSource:
   m_ObjectHideFlags: 0
@@ -20560,6 +20570,33 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+--- !u!114 &761087144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 761087138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aca23dc077bf4d747bc6aa19c25f8d59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  armPositionSet: 0
+  rightArmHigher: 0
+  leftArmHigher: 0
+  initialArmMovement: 0
+  timer: 0
+--- !u!114 &761087145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 761087138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12b484948c1b3c6489e3e49b58323e08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &765897420
 Prefab:
   m_ObjectHideFlags: 0
@@ -23406,7 +23443,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1976735639839414, guid: 14f4f60387c6fb64f954511f05df977f, type: 2}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 14f4f60387c6fb64f954511f05df977f, type: 2}
@@ -25759,7 +25796,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &931431511
 Transform:
   m_ObjectHideFlags: 0
@@ -44530,6 +44567,10 @@ Prefab:
       propertyPath: m_LocalScale.z
       value: 6.7662897
       objectReference: {fileID: 0}
+    - target: {fileID: 1614156488399294, guid: 1db8601c97565c84084b5b490940fae6, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1db8601c97565c84084b5b490940fae6, type: 2}
   m_IsPrefabParent: 0
@@ -49006,6 +49047,10 @@ Transform:
   m_PrefabParentObject: {fileID: 4724479352656210, guid: 09348a46d0ad31749b5d1e21784cfd42,
     type: 2}
   m_PrefabInternal: {fileID: 1733111100}
+--- !u!1 &1733324946 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 100012, guid: ce816f2e6abb0504092c23ed9b970dfd, type: 2}
+  m_PrefabInternal: {fileID: 720758799}
 --- !u!1001 &1738793245
 Prefab:
   m_ObjectHideFlags: 0
@@ -57895,6 +57940,11 @@ Transform:
 GameObject:
   m_PrefabParentObject: {fileID: 100008, guid: ce816f2e6abb0504092c23ed9b970dfd, type: 2}
   m_PrefabInternal: {fileID: 720758799}
+--- !u!143 &2017230542 stripped
+CharacterController:
+  m_PrefabParentObject: {fileID: 14300000, guid: ce816f2e6abb0504092c23ed9b970dfd,
+    type: 2}
+  m_PrefabInternal: {fileID: 720758799}
 --- !u!1001 &2020285163
 Prefab:
   m_ObjectHideFlags: 0
@@ -59816,7 +59866,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2093793084
 Transform:
   m_ObjectHideFlags: 0

@@ -5,11 +5,14 @@ using UnityEngine;
 public class BirdMovementController : MonoBehaviour {
 	public OVRPlayerController OVRController;
 	public GameObject player;
-	protected CharacterController playerController;
+	public CharacterController playerController;
+	public GameObject playerLookingDirection;
+	public GameObject LeftController;
+	public GameObject RightController;
 
 	// Use this for initialization
 	void Start () {
-		playerController = player.GetComponent<CharacterController>();
+		
 	}
 
 
@@ -24,8 +27,14 @@ public class BirdMovementController : MonoBehaviour {
 			if (OVRController.EnableLinearMovement) {
 				OVRController.EnableLinearMovement = false;
 			}
-
-			moveForward();
+			
+			//if both of the grips are being pressed
+			if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.Touch) > 0.0f &&
+				OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger, OVRInput.Controller.Touch) > 0.0f) {
+					//move the player where the hands are moving
+					//moveWhereHandsLooking();
+			}
+			
 
 		} else if (playerController.isGrounded) {
 
@@ -38,14 +47,29 @@ public class BirdMovementController : MonoBehaviour {
 
 	public void moveUp()
 	{
-		OVRController.Jump();
+		Vector3 moveDirection = Vector3.zero;
+		moveDirection.y += 0.5f;
+		playerController.Move(moveDirection);
 	}
 
-	public void moveForward()
+	public void moveWhereLooking()
 	{
-		Vector3 accelerationVector = player.transform.TransformDirection(Vector3.forward) * 0.05f;
+		Vector3 accelerationVector = player.transform.TransformDirection(playerLookingDirection.transform.forward) * 0.05f;
 		playerController.Move(accelerationVector);
 
+	}
+
+	public void moveWhereHandsLooking()
+	{
+		//Debug.Log(LeftController.transform.up);
+		Vector3 averagedControllerDirection = (LeftController.transform.up + RightController.transform.up) / 2;
+		Vector3 accelerationVector = player.transform.TransformDirection(averagedControllerDirection) * 0.05f;
+
+		
+
+		if (averagedControllerDirection.x > 0.0f) {
+			playerController.Move(accelerationVector);
+		}
 	}
 
 	public void moveDown()
