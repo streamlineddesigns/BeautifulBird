@@ -5,23 +5,28 @@ using UnityEngine;
 public class GroundMovementController : MonoBehaviour {
 
 	protected GroundMovementModel groundMovementModel;
-	protected BirdMovementController birdMovementController;
+	public GameObject player;
+	public CharacterController playerController;
+	public GameObject playerLookingDirection;
 
 	// Use this for initialization
 	void Start () {
 		groundMovementModel = GetComponent<GroundMovementModel>();
-		birdMovementController = GetComponent<BirdMovementController>();
-
-
 		groundMovementModel.timer = groundMovementModel.timeForMoveThreshHold;
+
+		groundMovementModel.rotationThreshold = 45.0f;
+		groundMovementModel.rotationSpeed = 0.4f;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		//if the player isn't grounded, ignore everything else
-		if (! birdMovementController.playerController.isGrounded) {
+		if (! playerController.isGrounded) {
+			moveDown();
 			return;
 		}
+
+		rotationalCheck();
 
 		//if one of the arms isn't higher than the other
 		if (! groundMovementModel.armPositionSet) {
@@ -37,10 +42,39 @@ public class GroundMovementController : MonoBehaviour {
 
 		if (checkForContinuousArmMovement()) {
 			//if continuous movement of the arms is occuring,  move forward
-			birdMovementController.moveWhereLooking();
+			moveWhereLooking();
 		} else {
 			//if there isn't continuous movement of the arms, then reset everything
 			resetAll();
+		}
+	}
+
+	protected void rotationalCheck()
+	{
+		//Using local rotation instead
+		//Debug.Log(playerLookingDirection.transform.localRotation.eulerAngles.y);
+		//if the players looking direction is greater than the rotational threshold
+		if (playerLookingDirection.transform.localRotation.eulerAngles.y >= 180) {
+
+			if (Mathf.Abs(playerLookingDirection.transform.localRotation.eulerAngles.y - 360) >= groundMovementModel.rotationThreshold) {
+				groundMovementModel.bCurrentlyRotating = true;
+				//left rotation
+				rotateLeftAction();
+				//Debug.Log("rotating left");
+			}
+
+		//if the players looking direction is less than the rotational threshold
+		} else if (playerLookingDirection.transform.localRotation.eulerAngles.y <= 180) {
+
+			if (playerLookingDirection.transform.localRotation.eulerAngles.y >= groundMovementModel.rotationThreshold) {
+				groundMovementModel.bCurrentlyRotating = true;
+				//right rotation
+				rotateRightAction();
+				//Debug.Log("rotating right");
+			}
+
+		} else {
+			groundMovementModel.bCurrentlyRotating = false;
 		}
 	}
 
@@ -88,6 +122,7 @@ public class GroundMovementController : MonoBehaviour {
 			if (getIsRightArmHigher()) {
 				setRightArmHigher();
 				//arm movement switched to right
+				groundMovementModel.speedMultiplier = groundMovementModel.timer;
 				resetTimer();
 			}	
 
@@ -97,6 +132,7 @@ public class GroundMovementController : MonoBehaviour {
 			if (getIsLeftArmHigher()) {
 				setLeftArmHigher();
 				//arm movement switched to left
+				groundMovementModel.speedMultiplier = groundMovementModel.timer;
 				resetTimer();
 			}
 
@@ -105,7 +141,7 @@ public class GroundMovementController : MonoBehaviour {
 		countTimerDown();
 
 
-		if (groundMovementModel.timer > 0) {
+		if (groundMovementModel.timer > 0.2f) {
 			return true;
 		} else {
 			return false;
@@ -165,4 +201,31 @@ public class GroundMovementController : MonoBehaviour {
 		groundMovementModel.armPositionSet = false;
 		groundMovementModel.initialArmMovement = false;
 	}
+	public void moveWhereLooking()
+	{
+		Vector3 accelerationVector = player.transform.TransformDirection(playerLookingDirection.transform.forward) * (0.055f * groundMovementModel.speedMultiplier);
+		playerController.Move(accelerationVector);
+	}
+
+	public void moveDown()
+	{
+		Vector3 moveDirection = Vector3.zero;
+		moveDirection.y -= 0.01f;
+		playerController.Move(moveDirection);
+	}
+	protected void rotateLeftAction()
+    {
+		Vector3 targetRotation;
+		targetRotation = player.transform.eulerAngles;
+        targetRotation.y -= groundMovementModel.rotationSpeed;
+		player.transform.eulerAngles = targetRotation;
+    }
+
+    protected void rotateRightAction()
+    {
+		Vector3 targetRotation;
+		targetRotation = player.transform.eulerAngles;
+        targetRotation.y += groundMovementModel.rotationSpeed;
+		player.transform.eulerAngles = targetRotation;
+    }
 }

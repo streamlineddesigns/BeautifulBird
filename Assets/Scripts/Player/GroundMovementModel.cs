@@ -14,4 +14,12 @@ public class GroundMovementModel : MonoBehaviour {
 	[System.NonSerialized]
 	public float timeForMoveThreshHold = 1.0f;
 	public float timer;
+	public float speedMultiplier;
+	public bool bIsWalking;
+
+	//Rotation
+	public float rotationSpeed;
+	public float rotationThreshold;
+	public float maxRotationThreshold;
+	public bool bCurrentlyRotating;
 }

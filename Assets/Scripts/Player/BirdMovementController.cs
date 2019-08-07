@@ -9,6 +9,7 @@ public class BirdMovementController : MonoBehaviour {
 	public GameObject playerLookingDirection;
 	public GameObject LeftController;
 	public GameObject RightController;
+	///public GameObject bird;
 
 	// Use this for initialization
 	void Start () {
@@ -32,7 +33,7 @@ public class BirdMovementController : MonoBehaviour {
 			if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.Touch) > 0.0f &&
 				OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger, OVRInput.Controller.Touch) > 0.0f) {
 					//move the player where the hands are moving
-					//moveWhereHandsLooking();
+					moveWhereBirdsLooking();
 			}
 			
 
@@ -53,6 +54,13 @@ public class BirdMovementController : MonoBehaviour {
 	}
 
 	public void moveWhereLooking()
+	{
+		Vector3 accelerationVector = player.transform.TransformDirection(playerLookingDirection.transform.forward) * 0.05f;
+		playerController.Move(accelerationVector);
+
+	}
+
+	public void moveWhereBirdsLooking()
 	{
 		Vector3 accelerationVector = player.transform.TransformDirection(playerLookingDirection.transform.forward) * 0.05f;
 		playerController.Move(accelerationVector);

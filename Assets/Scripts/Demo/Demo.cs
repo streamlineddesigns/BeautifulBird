@@ -13,10 +13,11 @@ public class Demo : MonoBehaviour {
 	private float pitchValue;
 	private float yawValue;
 	private float rollValue;
+	private Vector3 AverageEulers;
 
 	// Use this for initialization
 	void Start () {
-		
+		AverageEulers = new Vector3(0, 0, 0);
 	}
 	
 	// Update is called once per frame
@@ -25,24 +26,26 @@ public class Demo : MonoBehaviour {
 		if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.Touch) > 0.0f &&
 			OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger, OVRInput.Controller.Touch) > 0.0f) {
 
-				if (DOMesh.material != onMaterial) {
+				/*if (DOMesh.material != onMaterial) {
+
 					DOMesh.material = onMaterial;
-				}
+
+				} */
 
 				setDBOrientation();
 
 		} else {
-			if (DOMesh.material != offMaterial) {
-					DOMesh.material = offMaterial;
-				}
+			/*if (DOMesh.material != offMaterial) {
+				DOMesh.material = offMaterial;
+			} */
 		}
 	}
 
 	protected void setDBOrientation() 
 	{
-		pitchValue = getCalculatedPitch();
-		yawValue = getCalculatedYaw();
-		rollValue = getCalculatedRoll();
+		//pitchValue = getCalculatedPitch();
+		//yawValue = getCalculatedYaw();
+		//rollValue = getCalculatedRoll();
 
 		/*
 		//RIGHT Controller Perfect
@@ -66,11 +69,14 @@ public class Demo : MonoBehaviour {
 		
 		//Theoretically should work but does now.. without the division for averages
 		pitchValue = (RC.transform.eulerAngles.z + (LC.transform.eulerAngles.z * -1.0f));
-		yawValue = ((RC.transform.eulerAngles.y - 90.0f) + (LC.transform.eulerAngles.y + 90.0f));
+		yawValue = (RC.transform.eulerAngles.y + LC.transform.eulerAngles.y);
 		rollValue = ((RC.transform.eulerAngles.x * -1.0f) + LC.transform.eulerAngles.x);
 
-		DB.transform.eulerAngles = new Vector3(pitchValue, yawValue, rollValue);
-		//DB.transform.rotation = Quaternion.Lerp(DB.transform.rotation, Quaternion.Euler(pitchValue, yawValue, rollValue), 0.05f); //Testing lerp
+		//DB.transform.eulerAngles = new Vector3(pitchValue, yawValue, rollValue); //Old working thing
+		DB.transform.rotation = Quaternion.Lerp(DB.transform.rotation, Quaternion.Euler(pitchValue, yawValue, rollValue), 0.025f); //Testing lerp
+
+		//New test
+		//DB.transform.rotation = Quaternion.Euler(pitchValue,0,0);
 		 
 
 		/*
@@ -87,7 +93,20 @@ public class Demo : MonoBehaviour {
 
 	protected float getCalculatedPitch()
 	{
-		float calculatedPitch = (RC.transform.eulerAngles.z + (LC.transform.eulerAngles.z * -1.0f)) / 2.0f;
+		//float calculatedPitch = (RC.transform.eulerAngles.z + (LC.transform.eulerAngles.z * -1.0f)) / 2.0f;
+		//float calculatedPitch = (RC.transform.eulerAngles.z + (LC.transform.eulerAngles.z * -1.0f)) / 2.0f;
+		//float calculatedPitch = (Mathf.Abs(RC.transform.eulerAngles.z) + Mathf.Abs(LC.transform.eulerAngles.z));
+		if ((RC.transform.eulerAngles.z + (LC.transform.eulerAngles.z * -1.0f)) > AverageEulers.x) {
+
+			AverageEulers.x += 0.1f;
+
+		} else if ((RC.transform.eulerAngles.z + (LC.transform.eulerAngles.z * -1.0f)) < AverageEulers.y) {
+			//AverageEulers.x -= 0.1f;
+		}
+
+		//float calculatedPitch = (RCEulers.x + LCEulers.x) / 2.0f;
+		float calculatedPitch = AverageEulers.x;
+
 		return calculatedPitch;
 	}
 	protected float getCalculatedYaw()
