@@ -19,8 +19,8 @@ public class FlyingController : MonoBehaviour {
 
     void Start() {
         //thresholds
-        FlyingModel.pitchThreshold = 5.5f;
-        FlyingModel.rollThreshold = 5.5f;
+        FlyingModel.pitchThreshold = 1.0f;
+        FlyingModel.rollThreshold = 1.0f;
         FlyingModel.wingFlapThreshold = 20.0f;
 
         //Speed
@@ -74,8 +74,20 @@ public class FlyingController : MonoBehaviour {
         //Set Rotation
         Vector3 desiredRotation;
         desiredRotation = cameraContainer.transform.eulerAngles;
-        desiredRotation.y = cameraTarget.transform.eulerAngles.y;
+        //desiredRotation.x = Bird.transform.eulerAngles.x;
+        desiredRotation.y = Bird.transform.eulerAngles.y;
         cameraContainer.transform.eulerAngles = desiredRotation;
+
+        /*Vector3 targetDir = Bird.transform.position;
+
+        // The step size is equal to speed times frame time.
+        float step = 5.0f * Time.deltaTime;
+
+        Vector3 newDir = Vector3.RotateTowards(cameraContainer.transform.forward, targetDir, step, 1.0f);
+        Debug.DrawRay(transform.position, newDir, Color.red);
+
+        // Move our position a step closer to the target.
+        cameraContainer.transform.rotation = Quaternion.LookRotation(newDir);*/
     }
     protected void InputChecks()
     {
@@ -311,7 +323,7 @@ public class FlyingController : MonoBehaviour {
 
                     /* Flapping wings true */
                     FlyingModel.bFlappingWings = true;
-                    FlapWingsAction();
+                    //FlapWingsAction();
 
                 }
 
@@ -405,12 +417,12 @@ public class FlyingController : MonoBehaviour {
 
     protected void TurnLeftAction()
     {
-        FlyingModel.yawValue -= 1.2f * (Mathf.Abs(FlyingModel.rollValue) / 100);
+        FlyingModel.yawValue -= 1.20f * (Mathf.Abs(FlyingModel.rollValue) / 100);
     }
 
     protected void TurnRightAction()
     {
-        FlyingModel.yawValue += 1.2f * (Mathf.Abs(FlyingModel.rollValue) / 100);
+        FlyingModel.yawValue += 1.20f * (Mathf.Abs(FlyingModel.rollValue) / 100);
     }
 
     protected void FlapWingsAction()

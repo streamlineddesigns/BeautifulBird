@@ -8,6 +8,9 @@ public class GroundMovementController : MonoBehaviour {
 	public GameObject player;
 	public CharacterController playerController;
 	public GameObject playerLookingDirection;
+	public GameObject cameraRig;
+	public GameObject RC;
+	public GameObject LC;
 
 	// Use this for initialization
 	void Start () {
@@ -15,18 +18,21 @@ public class GroundMovementController : MonoBehaviour {
 		groundMovementModel.timer = groundMovementModel.timeForMoveThreshHold;
 
 		groundMovementModel.rotationThreshold = 45.0f;
-		groundMovementModel.rotationSpeed = 0.4f;
+		groundMovementModel.rotationSpeed = 0.75f;
+
+		groundMovementModel.armMovementThreshold = 20.0f;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		//if the player isn't grounded, ignore everything else
 		if (! playerController.isGrounded) {
-			moveDown();
+			Fall();
 			return;
 		}
 
 		rotationalCheck();
+		JumpCheck();
 
 		//if one of the arms isn't higher than the other
 		if (! groundMovementModel.armPositionSet) {
@@ -76,6 +82,41 @@ public class GroundMovementController : MonoBehaviour {
 		} else {
 			groundMovementModel.bCurrentlyRotating = false;
 		}
+	}
+
+	protected void JumpCheck()
+    {
+
+        //arms are up
+        if (LC.transform.eulerAngles.x > 180 && RC.transform.eulerAngles.x > 180) {
+            
+            //if both controllers break the jump threshold
+            if (Mathf.Abs(LC.transform.eulerAngles.x - 360) > groundMovementModel.armMovementThreshold && Mathf.Abs(RC.transform.eulerAngles.x - 360) > groundMovementModel.armMovementThreshold) {
+
+                if (! groundMovementModel.bJumping) {
+					/* jumping true */
+                    groundMovementModel.bJumping = true;
+					Jump();
+                }
+
+            } else {
+                /* jumping false */
+                groundMovementModel.bJumping = false;
+            }
+
+        } else {
+            if (!groundMovementModel.bJumping) {
+                /* jumping false */
+                groundMovementModel.bJumping = false;
+            }
+        }
+    }
+
+	protected void Jump()
+	{
+		Vector3 moveDirection = Vector3.zero;
+		moveDirection.y += 1.5f;
+		playerController.Move(moveDirection);
 	}
 
 	protected void checkForArmHeightDifference()
@@ -207,25 +248,29 @@ public class GroundMovementController : MonoBehaviour {
 		playerController.Move(accelerationVector);
 	}
 
-	public void moveDown()
+	public void Fall()
 	{
-		Vector3 moveDirection = Vector3.zero;
-		moveDirection.y -= 0.01f;
-		playerController.Move(moveDirection);
+		Vector3 accelerationVector = player.transform.TransformDirection(playerLookingDirection.transform.forward) * (0.055f * groundMovementModel.speedMultiplier);
+		accelerationVector.y -= 0.025f;
+		playerController.Move(accelerationVector);
+		//Vector3 moveDirection = Vector3.zero;
+		//moveDirection.y -= 0.01f;
+		//playerController.Move(moveDirection);
 	}
+
 	protected void rotateLeftAction()
     {
 		Vector3 targetRotation;
-		targetRotation = player.transform.eulerAngles;
+		targetRotation = cameraRig.transform.eulerAngles;
         targetRotation.y -= groundMovementModel.rotationSpeed;
-		player.transform.eulerAngles = targetRotation;
+		cameraRig.transform.eulerAngles = targetRotation;
     }
 
     protected void rotateRightAction()
     {
 		Vector3 targetRotation;
-		targetRotation = player.transform.eulerAngles;
+		targetRotation = cameraRig.transform.eulerAngles;
         targetRotation.y += groundMovementModel.rotationSpeed;
-		player.transform.eulerAngles = targetRotation;
+		cameraRig.transform.eulerAngles = targetRotation;
     }
 }

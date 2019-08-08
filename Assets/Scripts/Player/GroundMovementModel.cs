@@ -22,4 +22,8 @@ public class GroundMovementModel : MonoBehaviour {
 	public float rotationThreshold;
 	public float maxRotationThreshold;
 	public bool bCurrentlyRotating;
+
+	//Jumping
+	public float armMovementThreshold;
+	public bool bJumping;
 }
