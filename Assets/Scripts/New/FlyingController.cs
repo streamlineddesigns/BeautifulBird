@@ -33,6 +33,21 @@ public class FlyingController : MonoBehaviour {
     }
 
 	void Update() {
+        if (! GameController.Singleton.flightControlIsOn) {
+            return;
+        }
+
+        //checks wing flapping
+        FlapWingsCheck();
+
+        if (FlyingModel.bLerpFlap) {
+            FlapWingsAction();
+        }
+
+        if (BirdController.isGrounded) {
+            return;
+        }
+
         //camera follows bird
         followBird();
 
@@ -60,9 +75,6 @@ public class FlyingController : MonoBehaviour {
             //Move Forward in air
             FlyForward();
         }
-
-
-        //Should test if player flaps their wings in update so that we can lerp position
     }
     
     protected void followBird()
@@ -98,9 +110,6 @@ public class FlyingController : MonoBehaviour {
         //checks left and right
         TurnLeftCheck();
         TurnRightCheck();
-
-        //checks wing flapping
-        FlapWingsCheck();
 
         //Test if the player is walking
         WalkingCheck();
@@ -291,6 +300,8 @@ public class FlyingController : MonoBehaviour {
 
                 /* flapping up true */
                 FlyingModel.bFlappingUp = true;
+                FlyingModel.bLerpFlap = true;
+                FlyingModel.birdFlapStartPosition = Bird.transform.position;
 
                 //if the current flap type doesn't reflect upward flap as last previous move
                 if (FlyingModel.currentFlapType != 0) {
@@ -323,7 +334,6 @@ public class FlyingController : MonoBehaviour {
 
                     /* Flapping wings true */
                     FlyingModel.bFlappingWings = true;
-                    //FlapWingsAction();
 
                 }
 
@@ -395,18 +405,19 @@ public class FlyingController : MonoBehaviour {
         FlyingModel.flyingSpeed = (newSpeed > FlyingModel.maxSpeed) ? FlyingModel.maxSpeed : newSpeed;
     }
 
+    /* When the player goes back to being level after either flying up or diving down */
     protected void NoPitchAction()
     {
         float newSpeed = 0.0f;
 
-        //Going faster than originally
+        //Going faster than originally so they need to slowly decrease their speed to minimum gliding speed
         if (FlyingModel.flyingSpeed > FlyingModel.originalFlyingSpeed) {
 
             //decrease speed
             newSpeed = FlyingModel.flyingSpeed + FlyingModel.decelerationSpeedMultipler;
             FlyingModel.flyingSpeed = newSpeed;
 
-        //Going slower than originally
+        //Going slower than originally so they need to slowly increase their speed to minimum gliding speed
         } else if (FlyingModel.flyingSpeed < FlyingModel.originalFlyingSpeed) {
 
             //increase speed
@@ -427,9 +438,18 @@ public class FlyingController : MonoBehaviour {
 
     protected void FlapWingsAction()
     {
-        Vector3 moveDirection = Vector3.zero;
-		moveDirection.y += 0.5f;
-		BirdController.Move(moveDirection);
+        //Start lerping the flap
+        Vector3 desiredPosition = FlyingModel.birdFlapStartPosition;
+        desiredPosition.y += 0.5f;
+        Bird.transform.position = Vector3.Lerp(Bird.transform.position, desiredPosition, 0.1f * Time.deltaTime);
+
+        //flap lerp over
+        if (Bird.transform.position.y >= desiredPosition.y) {
+            FlyingModel.bLerpFlap = false;
+        }
+        //Vector3 moveDirection = Vector3.zero;
+		//moveDirection.y += 0.5f;
+		//BirdController.Move(moveDirection);
     }
 
     protected void FlyForward()

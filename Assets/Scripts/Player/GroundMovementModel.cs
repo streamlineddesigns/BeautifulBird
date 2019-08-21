@@ -26,4 +26,5 @@ public class GroundMovementModel : MonoBehaviour {
 	//Jumping
 	public float armMovementThreshold;
 	public bool bJumping;
+	public float bJumpHeight = 2.25f;
 }

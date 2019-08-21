@@ -25,10 +25,15 @@ public class GroundMovementController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (! GameController.Singleton.groundControlIsOn) {
+            return;
+        }
+
+
 		//if the player isn't grounded, ignore everything else
 		if (! playerController.isGrounded) {
 			Fall();
-			return;
+			///return;
 		}
 
 		rotationalCheck();
@@ -115,7 +120,7 @@ public class GroundMovementController : MonoBehaviour {
 	protected void Jump()
 	{
 		Vector3 moveDirection = Vector3.zero;
-		moveDirection.y += 1.5f;
+		moveDirection.y += groundMovementModel.bJumpHeight;
 		playerController.Move(moveDirection);
 	}
 
@@ -251,7 +256,7 @@ public class GroundMovementController : MonoBehaviour {
 	public void Fall()
 	{
 		Vector3 accelerationVector = player.transform.TransformDirection(playerLookingDirection.transform.forward) * (0.055f * groundMovementModel.speedMultiplier);
-		accelerationVector.y -= 0.025f;
+		accelerationVector.y -= 0.03f;
 		playerController.Move(accelerationVector);
 		//Vector3 moveDirection = Vector3.zero;
 		//moveDirection.y -= 0.01f;

@@ -20,6 +20,7 @@ public class FlyingModel : MonoBehaviour {
     public bool bFlappingWings;
     public bool bFlappingUp;
     public bool bFlappingDown;
+    public bool bLerpFlap;
 
     /* action haptics */
     public bool bTurnUpHaptic;
@@ -41,4 +42,6 @@ public class FlyingModel : MonoBehaviour {
 
     /* Flapping */
     public int currentFlapType;
+    public Vector3 birdFlapStartPosition;
+
 }

@@ -21086,6 +21086,7 @@ MonoBehaviour:
   bCurrentlyRotating: 0
   armMovementThreshold: 0
   bJumping: 0
+  bJumpHeight: 2.25
 --- !u!114 &761087145
 MonoBehaviour:
   m_ObjectHideFlags: 0
