@@ -4,6 +4,13 @@ using UnityEngine;
 
 
 public class FlyingModel : MonoBehaviour {
+    /* GO */
+    public GameObject LC;//SET
+    public GameObject RC;//SET
+    public Animator BirdAnimator;
+    /* Timer */
+    public float initialTime;
+    public float timeLeft;
     /* Speeds */
     public float flyingSpeed;
     public float originalFlyingSpeed;
@@ -21,7 +28,7 @@ public class FlyingModel : MonoBehaviour {
     public bool bFlappingUp;
     public bool bFlappingDown;
     public bool bLerpFlap;
-
+    public bool bDiving;
     /* action haptics */
     public bool bTurnUpHaptic;
     public bool bTurnDownHaptic;
@@ -39,9 +46,11 @@ public class FlyingModel : MonoBehaviour {
     public float yawThreshold;
     public float rollThreshold;
     public float wingFlapThreshold;
+    public float diveThreshold;
 
     /* Flapping */
     public int currentFlapType;
     public Vector3 birdFlapStartPosition;
+    public float flapHeightIncrease;
 
 }

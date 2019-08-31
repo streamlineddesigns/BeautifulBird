@@ -24,11 +24,11 @@ public class FlyingController : MonoBehaviour {
         FlyingModel.wingFlapThreshold = 20.0f;
 
         //Speed
-        FlyingModel.originalFlyingSpeed = 4.0f;
+        FlyingModel.originalFlyingSpeed = 3.0f;
         FlyingModel.flyingSpeed = FlyingModel.originalFlyingSpeed;
-        FlyingModel.maxSpeed = 10.0f;
-        FlyingModel.minSpeed = -2.0f;
-        FlyingModel.decelerationSpeedMultipler = -0.005f;
+        FlyingModel.maxSpeed = 8.0f;
+        FlyingModel.minSpeed = -0.1f;
+        FlyingModel.decelerationSpeedMultipler = -0.0075f;
         FlyingModel.accelerationSpeedMultipler = 0.02f;
     }
 
@@ -365,6 +365,7 @@ public class FlyingController : MonoBehaviour {
 
     protected void ApplyGravity()
     {
+        //Slowly move the player down on the y axis
         Vector3 moveDirection = Vector3.zero;
 		moveDirection.y -= 0.0015f;
 		BirdController.Move(moveDirection);
@@ -376,10 +377,10 @@ public class FlyingController : MonoBehaviour {
 
         //FlyingModel.flyingSpeed = (newSpeed < 0) ? -0.5f : newSpeed;
 
-        //new speed is slower than 0
+        //speed is slower than 0
         if (FlyingModel.flyingSpeed < 0 && (FlyingModel.flyingSpeed > FlyingModel.minSpeed)) {
             
-            //increase the deceleration exponentially
+            //increase the deceleration
             newSpeed = FlyingModel.flyingSpeed - FlyingModel.accelerationSpeedMultipler;
             FlyingModel.flyingSpeed = newSpeed;
 

@@ -249,6 +249,11 @@ public class GroundMovementController : MonoBehaviour {
 	}
 	public void moveWhereLooking()
 	{
+		/* if () {
+
+		} else if () {
+
+		}*/
 		Vector3 accelerationVector = player.transform.TransformDirection(playerLookingDirection.transform.forward) * (0.055f * groundMovementModel.speedMultiplier);
 		playerController.Move(accelerationVector);
 	}
@@ -256,7 +261,7 @@ public class GroundMovementController : MonoBehaviour {
 	public void Fall()
 	{
 		Vector3 accelerationVector = player.transform.TransformDirection(playerLookingDirection.transform.forward) * (0.055f * groundMovementModel.speedMultiplier);
-		accelerationVector.y -= 0.03f;
+		accelerationVector.y -= 0.01f;
 		playerController.Move(accelerationVector);
 		//Vector3 moveDirection = Vector3.zero;
 		//moveDirection.y -= 0.01f;

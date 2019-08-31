@@ -16,7 +16,7 @@ AnimatorController:
     m_Controller: {fileID: 0}
   - m_Name: Vertical
     m_Type: 1
-    m_DefaultFloat: 0
+    m_DefaultFloat: 2
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
@@ -36,7 +36,7 @@ AnimatorController:
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
-    m_DefaultBool: 0
+    m_DefaultBool: 1
     m_Controller: {fileID: 0}
   - m_Name: Stand
     m_Type: 4
@@ -86,12 +86,6 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
-  - m_Name: IDAction
-    m_Type: 3
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 0}
   - m_Name: Slope
     m_Type: 1
     m_DefaultFloat: 0
@@ -112,6 +106,12 @@ AnimatorController:
     m_Controller: {fileID: 0}
   - m_Name: AnimState
     m_Type: 1
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 0}
+  - m_Name: IDAction
+    m_Type: 3
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
@@ -3281,35 +3281,35 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: 110254646}
-    m_Position: {x: 756, y: 1200, z: 0}
+    m_Position: {x: 264, y: -192, z: 0}
   m_ChildStateMachines:
   - serializedVersion: 1
     m_StateMachine: {fileID: 110750744}
-    m_Position: {x: 756, y: 1296, z: 0}
+    m_Position: {x: 264, y: -96, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: 110795134}
-    m_Position: {x: 528, y: 984, z: 0}
+    m_Position: {x: 36, y: -408, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: 110729810}
-    m_Position: {x: 528, y: 1080, z: 0}
+    m_Position: {x: 36, y: -312, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: 110789220}
-    m_Position: {x: 756, y: 1044, z: 0}
+    m_Position: {x: 264, y: -348, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: 110724612}
-    m_Position: {x: 528, y: 1032, z: 0}
+    m_Position: {x: 36, y: -360, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: 1107772134472306292}
-    m_Position: {x: 1032, y: 936, z: 0}
+    m_Position: {x: 540, y: -456, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: 1107472881537618404}
-    m_Position: {x: 756, y: 1368, z: 0}
+    m_Position: {x: 264, y: -24, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: 1107081896748380308}
-    m_Position: {x: 1032, y: 1044, z: 0}
+    m_Position: {x: 540, y: -348, z: 0}
   - serializedVersion: 1
     m_StateMachine: {fileID: 1107831365256449852}
-    m_Position: {x: 1032, y: 1200, z: 0}
+    m_Position: {x: 540, y: -192, z: 0}
   m_AnyStateTransitions:
   - {fileID: 110120260}
   - {fileID: 110168372}
@@ -3338,9 +3338,9 @@ AnimatorStateMachine:
   - first: {fileID: 1107472881537618404}
     second: []
   m_StateMachineBehaviours: []
-  m_AnyStatePosition: {x: 312, y: 1032, z: 0}
-  m_EntryPosition: {x: 552, y: 1308, z: 0}
-  m_ExitPosition: {x: 552, y: 1272, z: 0}
+  m_AnyStatePosition: {x: -180, y: -360, z: 0}
+  m_EntryPosition: {x: 60, y: -84, z: 0}
+  m_ExitPosition: {x: 60, y: -120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: 110242472}
 --- !u!1107 &110736534
@@ -3854,6 +3854,26 @@ MonoBehaviour:
   DownAcceleration: 1.5
   FallRecovery: 1.5
   CanNotSwim: 1
+  acceleration: 0
+  rb: {fileID: 0}
+  animal: {fileID: 0}
+  transform: {fileID: 0}
+  Shift: 0
+  Direction: 0
+  deltaTime: 0
+  FallVector: {x: 0, y: 0, z: 0}
+  forwardAceleration: 0
+  BehaviourSpeed:
+    name: 
+    position: 0
+    animator: 0
+    lerpPosition: 0
+    lerpAnimator: 0
+    rotation: 0
+    lerpRotation: 0
+  PitchAngle: 0
+  vertical: 0
+  foundWater: 0
 --- !u!114 &114122721156128136
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -3978,6 +3998,18 @@ MonoBehaviour:
   AnimSprintSpeed: 1.88
   AnimSprintLerp: 6
   NoGliding: 1
+  SpeedHash: -382374917
+  CurrentSpeedMultiplier: 0
+  Shift: 0
+  animal: {fileID: 0}
+  BehaviourSpeed:
+    name: 
+    position: 0
+    animator: 0
+    lerpPosition: 0
+    lerpAnimator: 0
+    rotation: 0
+    lerpRotation: 0
 --- !u!114 &114333680213320376
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -4165,6 +4197,11 @@ MonoBehaviour:
   FlapChange:
     minValue: 0.8181818
     maxValue: 3.8181813
+  isGliding: 0
+  FlyStyleTime: 1
+  currentTime: 1
+  Default_UseShift: 0
+  animal: {fileID: 0}
 --- !u!114 &114551637292232690
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -4209,6 +4246,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   JumpMultiplier: 1
   ForwardMultiplier: 1
+  animal: {fileID: 0}
+  rb: {fileID: 0}
 --- !u!114 &114600537660141502
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10804,9 +10843,6 @@ AnimatorState:
   - {fileID: 1101248868042913756}
   m_StateMachineBehaviours:
   - {fileID: 114731329319133662}
-  - {fileID: 114120826891039980}
-  - {fileID: 114542326068210734}
-  - {fileID: 114301544088785322}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -10967,8 +11003,7 @@ AnimatorState:
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 1101631520346558214}
-  m_StateMachineBehaviours:
-  - {fileID: 114571889651993856}
+  m_StateMachineBehaviours: []
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
