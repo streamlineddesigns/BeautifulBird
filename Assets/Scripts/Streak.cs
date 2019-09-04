@@ -7,7 +7,7 @@ public class Streak : MonoBehaviour {
     public float initialTimer;
     public float timeLeft;
     public int stage;
-    public TrailRenderer trail;
+    protected TrailRenderer trail;
 
     void Start()
     {

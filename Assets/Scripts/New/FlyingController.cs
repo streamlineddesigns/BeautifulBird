@@ -33,9 +33,9 @@ public class FlyingController : MonoBehaviour {
     }
 
 	void Update() {
-        if (! GameController.Singleton.flightControlIsOn) {
+        /*if (! GameController.Singleton.flightControlIsOn) {
             return;
-        }
+        } */
 
         //checks wing flapping
         FlapWingsCheck();

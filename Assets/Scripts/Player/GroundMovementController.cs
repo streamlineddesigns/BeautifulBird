@@ -25,9 +25,9 @@ public class GroundMovementController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (! GameController.Singleton.groundControlIsOn) {
+		/*if (! GameController.Singleton.groundControlIsOn) {
             return;
-        }
+        } */
 
 
 		//if the player isn't grounded, ignore everything else

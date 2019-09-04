@@ -7,8 +7,10 @@ public class Flapping : MonoBehaviour {
     public GameObject LC;
     public GameObject RC;
     public GameObject CameraContainer;
+    public GameObject Camera;
     public GameObject BirdContainer;
     public GameObject Bird;
+    protected CharacterController BirdController;
     public Collider BirdFeetCollider;
     protected FlyingModel FlyingModel;
     public GameObject CamTarget;
@@ -17,6 +19,9 @@ public class Flapping : MonoBehaviour {
     public GameObject MediumSpeedTrails;
     public float GravityForce;
     public float OriginalGravity;
+    public GameObject WarpDrive;
+    protected ParticleSystem WarpDriveParticles;
+    public GameObject warningToFlapText;
 
 
     void Awake() 
@@ -45,20 +50,33 @@ public class Flapping : MonoBehaviour {
         //Speed
         FlyingModel.originalFlyingSpeed = 2.0f;
         FlyingModel.flyingSpeed = FlyingModel.originalFlyingSpeed;
-        FlyingModel.maxSpeed = 6.0f;
+        FlyingModel.maxSpeed = 7.0f;
         FlyingModel.minSpeed = 0.0f;
         FlyingModel.decelerationSpeedMultipler = 0.0075f;
         FlyingModel.accelerationSpeedMultipler = 0.0075f;
 
         GravityForce = 0.0075f;
         OriginalGravity = GravityForce;
+        WarpDriveParticles = GetComponent<ParticleSystem>();
+        BirdController = Bird.GetComponent<CharacterController>();
+
     }
 
     void Update() 
     {
-        /*if (IsGrounded()) {
+        /* if (OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.RTouch)) {
+            FlyingModel.bisLanding = true;
+        }
+
+        if (FlyingModel.bisLanding) {
+            if (FlyingModel.flyingSpeed != 0) {
+                FlyingModel.flyingSpeed = 0;
+            }
+            ApplyGravity();
+            CameraFollow();
             return;
         }*/
+
         //Gravity
         //Add Gravity to the bird
         ApplyGravity();
@@ -125,17 +143,18 @@ public class Flapping : MonoBehaviour {
                 //play flapping animation
                 FlyingModel.BirdAnimator.SetFloat("Vertical", 1.0f);
                 
-                if (FlyingModel.flyingSpeed <= FlyingModel.minSpeed) {
+                if (FlyingModel.flyingSpeed < FlyingModel.originalFlyingSpeed) {
 
-                    //5 flaps to get back to minimum speed
-                    FlyingModel.flyingSpeed+= FlyingModel.minSpeed / 5.0f;
+                    //1 flaps to get back to original speed
+                    FlyingModel.flyingSpeed+= FlyingModel.originalFlyingSpeed;
 
                 } else if (FlyingModel.flyingSpeed < FlyingModel.maxSpeed) {
-                    //7 flaps to get back to max speed
-                    FlyingModel.flyingSpeed+= FlyingModel.maxSpeed / 7.0f;
+                    //5 flaps to get back to max speed
+                    FlyingModel.flyingSpeed+= FlyingModel.maxSpeed / 5.0f;
                 }
-                if (GravityForce < OriginalGravity) {
-                    //3 flaps to stop falling
+                
+                if (GravityForce > OriginalGravity) {
+                    //1 flap to stop falling so fast
                     GravityForce = OriginalGravity;
                 }
 
@@ -171,6 +190,50 @@ public class Flapping : MonoBehaviour {
         //Set the birds orientation
         Bird.transform.rotation = Quaternion.Lerp(Bird.transform.rotation, Quaternion.Euler(FlyingModel.pitchValue, FlyingModel.yawValue, FlyingModel.rollValue), 0.1f);
         
+        CameraFollow();
+
+        //if the bird is flapping wings or diving
+        if ((FlyingModel.BirdAnimator.GetFloat("Vertical") == 1.0f) || FlyingModel.bDiving) {
+            //if the wing trails are on
+            if (ExtendedWingTrails.activeSelf) {
+                //set them off
+                ExtendedWingTrails.SetActive(false);
+            }
+        } else {
+            if (! ExtendedWingTrails.activeSelf) {
+                //set them off
+                FasterSpeedTrails.SetActive(false);
+                MediumSpeedTrails.SetActive(false);
+                ExtendedWingTrails.SetActive(true);
+            }
+        }
+
+        //if the players speed is less than 20% of its original speed
+        if (FlyingModel.flyingSpeed <= FlyingModel.originalFlyingSpeed * 0.20f) {
+            warningToFlapText.SetActive(true);
+        } else {
+            warningToFlapText.SetActive(false);
+        }
+    }
+
+    protected bool IsGrounded()
+	{
+		//Ray takes an original position, and a direction
+		Ray groundRay = new Ray(
+			new Vector3(
+				//Position
+				BirdFeetCollider.bounds.center.x,
+				(BirdFeetCollider.bounds.center.y - BirdFeetCollider.bounds.extents.y) + 0.2f,
+				BirdFeetCollider.bounds.center.z
+			),
+			//Direction
+			Vector3.down
+		);
+        Debug.DrawRay(groundRay.origin, groundRay.direction, Color.cyan, 1.0f);
+		return Physics.Raycast(groundRay, 0.2f + 0.1f);
+	}
+
+    protected void CameraFollow() {
         //Camera follows bird
         Vector3 newPos2 = new Vector3(CamTarget.transform.position.x, CameraContainer.transform.position.y, CamTarget.transform.position.z);
         //The bird is flapping
@@ -191,40 +254,7 @@ public class Flapping : MonoBehaviour {
         desiredRotation = CameraContainer.transform.eulerAngles;
         desiredRotation.y = Bird.transform.eulerAngles.y;
         CameraContainer.transform.eulerAngles = desiredRotation;
-
-        //if the bird is flapping wings or diving
-        if ((FlyingModel.BirdAnimator.GetFloat("Vertical") == 1.0f) || FlyingModel.bDiving) {
-            //if the wing trails are on
-            if (ExtendedWingTrails.activeSelf) {
-                //set them off
-                ExtendedWingTrails.SetActive(false);
-            }
-        } else {
-            if (! ExtendedWingTrails.activeSelf) {
-                //set them off
-                FasterSpeedTrails.SetActive(false);
-                MediumSpeedTrails.SetActive(false);
-                ExtendedWingTrails.SetActive(true);
-            }
-        }
     }
-
-    protected bool IsGrounded()
-	{
-		//Ray takes an original position, and a direction
-		Ray groundRay = new Ray(
-			new Vector3(
-				//Position
-				BirdFeetCollider.bounds.center.x,
-				(BirdFeetCollider.bounds.center.y - BirdFeetCollider.bounds.extents.y) + 0.2f,
-				BirdFeetCollider.bounds.center.z
-			),
-			//Direction
-			Vector3.down
-		);
-        Debug.DrawRay(groundRay.origin, groundRay.direction, Color.cyan, 1.0f);
-		return Physics.Raycast(groundRay, 0.2f + 0.1f);
-	}
     protected void TurnUpCheck()
     {
         //if both the controllers are being rolled up
@@ -470,10 +500,16 @@ public class Flapping : MonoBehaviour {
 
         } else {
 
-            //decelerate flying speed by normal amount
-            newSpeed = FlyingModel.flyingSpeed - FlyingModel.decelerationSpeedMultipler;
-            FlyingModel.flyingSpeed = newSpeed;
-
+            //if they're tilting more than 15 degrees upwards
+            if ((Mathf.Abs(RC.transform.eulerAngles.z - 360) > 5 && Mathf.Abs(LC.transform.eulerAngles.z) > 5)) {
+                //decelerate flying speed by normal amount
+                newSpeed = FlyingModel.flyingSpeed - FlyingModel.decelerationSpeedMultipler;
+                FlyingModel.flyingSpeed = newSpeed;
+            } else {
+                //decelerate flying speed by a tenth of the normal amount
+                newSpeed = FlyingModel.flyingSpeed - (FlyingModel.decelerationSpeedMultipler * 0.1f);
+                FlyingModel.flyingSpeed = newSpeed;
+            }
         }
     }
     protected void TurnDownAction()
@@ -539,3 +575,13 @@ public class Flapping : MonoBehaviour {
         //OVRInput.SetControllerVibration (0.5f, 0.5f, OVRInput.Controller.LTouch);
     }
 }
+
+/*Flying→user presses “a” button to drop and land onto the ground
+
+the players position is still behind the bird
+animation smoothly brings camera into the position of the bird
+while this is happening, the bird is becoming a beautiful, glowing orb with spirals of energy coming out of it
+when the players camera reaches the bird, the “shimmering” sound plays and the players beak fades into the cameras view
+then the player is also able to look down and see their controllers
+natural ground traversing would then be possible
+ */

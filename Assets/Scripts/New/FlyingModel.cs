@@ -53,4 +53,7 @@ public class FlyingModel : MonoBehaviour {
     public Vector3 birdFlapStartPosition;
     public float flapHeightIncrease;
 
+    /*Landing */
+    public bool bisLanding;
+
 }
