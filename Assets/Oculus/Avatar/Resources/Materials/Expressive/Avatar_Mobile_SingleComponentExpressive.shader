@@ -44,10 +44,14 @@ Shader "OvrAvatar/Avatar_Mobile_SingleComponentExpressive"
         _MaskColorSclera("Sclera Color", Color) = (0.0,0.0,0.0,1.0)
         _MaskColorGums("Gums Color", Color) = (0.0,0.0,0.0,1.0)
         _MaskColorTeeth("Teeth Color", Color) = (0.0,0.0,0.0,1.0)
+
+        [HideInInspector] _SrcBlend("", Float) = 1
+        [HideInInspector] _DstBlend("", Float) = 0
     }
 
     SubShader
     {
+        Tags { "LightMode" = "ForwardBase" "IgnoreProjector" = "True"}
         Pass
         {
             Blend [_SrcBlend] [_DstBlend]

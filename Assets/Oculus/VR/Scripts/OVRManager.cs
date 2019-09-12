@@ -14,6 +14,10 @@ ANY KIND, either express or implied. See the License for the specific language g
 permissions and limitations under the License.
 ************************************************************************************/
 
+#if UNITY_ANDROID && !UNITY_EDITOR
+#define OVR_ANDROID_MRC
+#endif
+
 #if !UNITY_5_6_OR_NEWER
 #error Oculus Utilities require Unity 5.6 or higher.
 #endif
@@ -23,6 +27,10 @@ using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
+#endif
+
+#if USING_XR_SDK
+using UnityEngine.Experimental.XR;
 #endif
 
 #if UNITY_2017_2_OR_NEWER
@@ -52,6 +60,16 @@ public class OVRManager : MonoBehaviour
 		R11G11B10_FP = OVRPlugin.EyeTextureFormat.R11G11B10_FP,
 	}
 
+	public enum FixedFoveatedRenderingLevel
+	{
+		Off = OVRPlugin.FixedFoveatedRenderingLevel.Off,
+		Low = OVRPlugin.FixedFoveatedRenderingLevel.Low,
+		Medium = OVRPlugin.FixedFoveatedRenderingLevel.Medium,
+		High = OVRPlugin.FixedFoveatedRenderingLevel.High,
+		HighTop = OVRPlugin.FixedFoveatedRenderingLevel.HighTop,
+	}
+
+	[Obsolete("Please use FixedFoveatedRenderingLevel instead")]
 	public enum TiledMultiResLevel
 	{
 		Off = OVRPlugin.TiledMultiResLevel.Off,
@@ -287,7 +305,7 @@ public class OVRManager : MonoBehaviour
 	/// If true, Unity will use the optimal antialiasing level for quality/performance on the current hardware.
 	/// </summary>
 	[Tooltip("If true, Unity will use the optimal antialiasing level for quality/performance on the current hardware.")]
-	public bool useRecommendedMSAALevel = false;
+	public bool useRecommendedMSAALevel = true;
 
 	/// <summary>
 	/// If true, both eyes will see the same image, rendered from the center eye pose, saving performance.
@@ -409,7 +427,7 @@ public class OVRManager : MonoBehaviour
 	/// </summary>
 	public int profilerTcpPort = OVRSystemPerfMetrics.TcpListeningPort;
 
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN || UNITY_ANDROID
 	/// <summary>
 	/// If true, the MixedRealityCapture properties will be displayed
 	/// </summary>
@@ -442,6 +460,11 @@ public class OVRManager : MonoBehaviour
 	[HideInInspector, Tooltip("Extra hidden layers")]
 	public LayerMask extraHiddenLayers;
 
+	/// <summary>
+	/// The backdrop color will be used when rendering the foreground frames. It only applies to External Composition.
+	/// </summary>
+	[HideInInspector, Tooltip("Backdrop color (External Compositon)")]
+	public Color externalCompositionBackdropColor = Color.clear;
 
 	/// <summary>
 	/// If true, Mixed Reality mode will use direct composition from the first web camera
@@ -581,6 +604,18 @@ public class OVRManager : MonoBehaviour
 	/// </summary>
 	[HideInInspector, Tooltip("The tolerance value (in meter) when using the virtual green screen with a depth camera. Make it bigger if the foreground objects got culled incorrectly.")]
 	public float virtualGreenScreenDepthTolerance = 0.2f;
+
+	public enum MrcActivationMode
+	{
+		Automatic,
+		Disabled
+	}
+
+	/// <summary>
+	/// (Quest-only) control if the mixed reality capture mode can be activated automatically through remote network connection.
+	/// </summary>
+	[HideInInspector, Tooltip("(Quest-only) control if the mixed reality capture mode can be activated automatically through remote network connection.")]
+	public MrcActivationMode mrcActivationMode;
 #endif
 
 	/// <summary>
@@ -740,6 +775,39 @@ public class OVRManager : MonoBehaviour
 	/// Gets if tiled-based multi-resolution technique is supported
 	/// This feature is only supported on QCOMM-based Android devices
 	/// </summary>
+	public static bool fixedFoveatedRenderingSupported
+	{
+		get
+		{
+			return OVRPlugin.fixedFoveatedRenderingSupported;
+		}
+	}
+
+	/// <summary>
+	/// Gets or sets the tiled-based multi-resolution level
+	/// This feature is only supported on QCOMM-based Android devices
+	/// </summary>
+	public static FixedFoveatedRenderingLevel fixedFoveatedRenderingLevel
+	{
+		get
+		{
+			if (!OVRPlugin.fixedFoveatedRenderingSupported)
+			{
+				Debug.LogWarning("Fixed Foveated Rendering feature is not supported");
+			}
+			return (FixedFoveatedRenderingLevel)OVRPlugin.fixedFoveatedRenderingLevel;
+		}
+		set
+		{
+			if (!OVRPlugin.fixedFoveatedRenderingSupported)
+			{
+				Debug.LogWarning("Fixed Foveated Rendering feature is not supported");
+			}
+			OVRPlugin.fixedFoveatedRenderingLevel = (OVRPlugin.FixedFoveatedRenderingLevel)value;
+		}
+	}
+
+	[Obsolete("Please use fixedFoveatedRenderingSupported instead", false)]
 	public static bool tiledMultiResSupported
 	{
 		get
@@ -748,10 +816,7 @@ public class OVRManager : MonoBehaviour
 		}
 	}
 
-	/// <summary>
-	/// Gets or sets the tiled-based multi-resolution level
-	/// This feature is only supported on QCOMM-based Android devices
-	/// </summary>
+	[Obsolete("Please use fixedFoveatedRenderingLevel instead", false)]
 	public static TiledMultiResLevel tiledMultiResLevel
 	{
 		get
@@ -938,6 +1003,14 @@ public class OVRManager : MonoBehaviour
 	}
 
 	/// <summary>
+	/// If true, a lower-latency update will occur right before rendering. If false, the only controller pose update will occur at the start of simulation for a given frame.
+	/// Selecting this option lowers rendered latency for controllers and is often a net positive; however, it also creates a slight disconnect between rendered and simulated controller poses.
+	/// Visit online Oculus documentation to learn more.
+	/// </summary>
+	[Tooltip("If true, rendered controller latency is reduced by several ms, as the left/right controllers will have their positions updated right before rendering.")]
+	public bool LateControllerUpdate = true;
+
+	/// <summary>
 	/// True if the current platform supports virtual reality.
 	/// </summary>
 	public bool isSupportedPlatform { get; private set; }
@@ -987,7 +1060,7 @@ public class OVRManager : MonoBehaviour
 		get { return OVRPlugin.nativeSDKVersion; }
 	}
 
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN || UNITY_ANDROID
 	private static bool prevEnableMixedReality = false;
 	private static bool MixedRealityEnabledFromCmd()
 	{
@@ -1045,7 +1118,7 @@ public class OVRManager : MonoBehaviour
 	}
 #endif
 
-	internal static bool IsUnityAlphaOrBetaVersion()
+	public static bool IsUnityAlphaOrBetaVersion()
 	{
 		string ver = Application.unityVersion;
 		int pos = ver.Length - 1;
@@ -1061,11 +1134,12 @@ public class OVRManager : MonoBehaviour
 		return false;
 	}
 
-	internal static string UnityAlphaOrBetaVersionWarningMessage = "WARNING: It's not recommended to use Unity alpha/beta release in Oculus development. Use a stable release if you encounter any issue.";
+	public static string UnityAlphaOrBetaVersionWarningMessage = "WARNING: It's not recommended to use Unity alpha/beta release in Oculus development. Use a stable release if you encounter any issue.";
 
 #region Unity Messages
 
-	private void Awake()
+	public static bool OVRManagerinitialized = false;
+	private void InitOVRManager()
 	{
 		// Only allow one instance at runtime.
 		if (instance != null)
@@ -1077,10 +1151,13 @@ public class OVRManager : MonoBehaviour
 
 		instance = this;
 
+		// uncomment the following line to disable the callstack printed to log
+		//Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);  // TEMPORARY
+
 		Debug.Log("Unity v" + Application.unityVersion + ", " +
-				  "Oculus Utilities v" + OVRPlugin.wrapperVersion + ", " +
-				  "OVRPlugin v" + OVRPlugin.version + ", " +
-				  "SDK v" + OVRPlugin.nativeSDKVersion + ".");
+				"Oculus Utilities v" + OVRPlugin.wrapperVersion + ", " +
+				"OVRPlugin v" + OVRPlugin.version + ", " +
+				"SDK v" + OVRPlugin.nativeSDKVersion + ".");
 
 #if !UNITY_EDITOR
 		if (IsUnityAlphaOrBetaVersion())
@@ -1124,7 +1201,7 @@ public class OVRManager : MonoBehaviour
 		chromatic = false;
 #endif
 
-#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+#if (UNITY_STANDALONE_WIN || UNITY_ANDROID) && !UNITY_EDITOR
 		enableMixedReality = false;		// we should never start the standalone game in MxR mode, unless the command-line parameter is provided
 #endif
 
@@ -1168,6 +1245,28 @@ public class OVRManager : MonoBehaviour
 		}
 #endif
 
+#if OVR_ANDROID_MRC
+		bool mediaInitialized = OVRPlugin.Media.Initialize();
+		Debug.Log(mediaInitialized ? "OVRPlugin.Media initialized" : "OVRPlugin.Media not initialized");
+		if (mediaInitialized)
+		{
+			OVRPlugin.Media.SetMrcAudioSampleRate(AudioSettings.outputSampleRate);
+			Debug.LogFormat("[MRC] SetMrcAudioSampleRate({0})", AudioSettings.outputSampleRate);
+			OVRPlugin.Media.SetMrcInputVideoBufferType(OVRPlugin.Media.InputVideoBufferType.TextureHandle);
+			Debug.LogFormat("[MRC] Active InputVideoBufferType:{0}", OVRPlugin.Media.GetMrcInputVideoBufferType());
+			if (mrcActivationMode == MrcActivationMode.Automatic)
+			{
+				OVRPlugin.Media.SetMrcActivationMode(OVRPlugin.Media.MrcActivationMode.Automatic);
+				Debug.LogFormat("[MRC] ActivateMode: Automatic");
+			}
+			else if (mrcActivationMode == MrcActivationMode.Disabled)
+			{
+				OVRPlugin.Media.SetMrcActivationMode(OVRPlugin.Media.MrcActivationMode.Disabled);
+				Debug.LogFormat("[MRC] ActivateMode: Disabled");
+			}
+		}
+#endif
+
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 		if (enableAdaptiveResolution && !OVRManager.IsAdaptiveResSupportedByEngine())
 		{
@@ -1201,6 +1300,16 @@ public class OVRManager : MonoBehaviour
 		// be aware there are performance drops if you don't use occlusionMesh.
 		OVRPlugin.occlusionMesh = true;
 #endif
+		OVRManagerinitialized = true;
+
+	}
+
+	private void Awake()
+	{
+#if !USING_XR_SDK
+		//For legacy, we can safely InitOVRManager on Awake(), as OVRPlugin is already initialized.
+		InitOVRManager();
+#endif
 	}
 
 #if UNITY_EDITOR
@@ -1215,13 +1324,25 @@ public class OVRManager : MonoBehaviour
 
 	void SetCurrentXRDevice()
 	{
+#if USING_XR_SDK
+		XRDisplaySubsystem currentDisplaySubsystem = GetCurrentDisplaySubsystem();
+		XRDisplaySubsystemDescriptor currentDisplaySubsystemDescriptor = GetCurrentDisplaySubsystemDescriptor();
+#endif
 		if (OVRPlugin.initialized)
 		{
 			loadedXRDevice = XRDevice.Oculus;
 		}
+#if USING_XR_SDK
+		else if (currentDisplaySubsystem != null && currentDisplaySubsystemDescriptor != null && currentDisplaySubsystem.running)
+#else
 		else if (Settings.enabled)
+#endif
 		{
-			String loadedXRDeviceName = Settings.loadedDeviceName;
+#if USING_XR_SDK
+			string loadedXRDeviceName = currentDisplaySubsystemDescriptor.id;
+#else
+			string loadedXRDeviceName = Settings.loadedDeviceName;
+#endif
 			if (loadedXRDeviceName == OPENVR_UNITY_NAME_STR)
 				loadedXRDevice = XRDevice.OpenVR;
 			else
@@ -1232,6 +1353,32 @@ public class OVRManager : MonoBehaviour
 			loadedXRDevice = XRDevice.Unknown;
 		}
 	}
+
+#if USING_XR_SDK
+
+	public static XRDisplaySubsystem GetCurrentDisplaySubsystem()
+	{
+		List<XRDisplaySubsystem> displaySubsystems = new List<XRDisplaySubsystem>();
+		SubsystemManager.GetInstances(displaySubsystems);
+		//Note: Here we are making the assumption that there will always be one valid display subsystem. If there is not, then submitFrame isn't being called,
+		//so for now this is a fine assumption to make.
+		if (displaySubsystems.Count > 0)
+			return displaySubsystems[0];
+		return null;
+	}
+
+	public static XRDisplaySubsystemDescriptor GetCurrentDisplaySubsystemDescriptor()
+	{
+		List<XRDisplaySubsystemDescriptor> displaySubsystemDescriptors = new List<XRDisplaySubsystemDescriptor>();
+		SubsystemManager.GetSubsystemDescriptors(displaySubsystemDescriptors);
+		if (displaySubsystemDescriptors.Count > 0)
+			return displaySubsystemDescriptors[0];
+		return null;
+	}
+#endif
+
+
+
 
 	void Initialize()
 	{
@@ -1247,11 +1394,26 @@ public class OVRManager : MonoBehaviour
 
 	}
 
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN || UNITY_ANDROID
 	private bool suppressDisableMixedRealityBecauseOfNoMainCameraWarning = false;
 #endif
+
 	private void Update()
 	{
+		//Only if we're using the XR SDK do we have to check if OVRManager isn't yet initialized, and init it.
+		//If we're on legacy, we know initialization occurred properly in Awake()
+#if USING_XR_SDK
+		if (!OVRManagerinitialized)
+		{
+			XRDisplaySubsystem currentDisplaySubsystem = GetCurrentDisplaySubsystem();
+			XRDisplaySubsystemDescriptor currentDisplaySubsystemDescriptor = GetCurrentDisplaySubsystemDescriptor();
+			if (currentDisplaySubsystem == null || currentDisplaySubsystemDescriptor == null || !OVRPlugin.initialized)
+				return;
+			//If we're using the XR SDK and the display subsystem is present, and OVRPlugin is initialized, we can init OVRManager
+			InitOVRManager();
+		}
+#endif
+
 #if UNITY_EDITOR
 		if (_scriptsReloaded)
 		{
@@ -1264,7 +1426,10 @@ public class OVRManager : MonoBehaviour
 		SetCurrentXRDevice();
 
 		if (OVRPlugin.shouldQuit)
+		{
+			Debug.Log("[OVRManager] OVRPlugin.shouldQuit detected");
 			Application.Quit();
+		}
 
 		if (AllowRecenter && OVRPlugin.shouldRecenter)
 		{
@@ -1312,6 +1477,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] HMDLost event");
 				if (HMDLost != null)
 					HMDLost();
 			}
@@ -1325,6 +1491,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] HMDAcquired event");
 				if (HMDAcquired != null)
 					HMDAcquired();
 			}
@@ -1344,6 +1511,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] HMDUnmounted event");
 				if (HMDUnmounted != null)
 					HMDUnmounted();
 			}
@@ -1357,6 +1525,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] HMDMounted event");
 				if (HMDMounted != null)
 					HMDMounted();
 			}
@@ -1376,6 +1545,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] VrFocusLost event");
 				if (VrFocusLost != null)
 					VrFocusLost();
 			}
@@ -1389,6 +1559,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] VrFocusAcquired event");
 				if (VrFocusAcquired != null)
 					VrFocusAcquired();
 			}
@@ -1408,6 +1579,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] InputFocusLost event");
 				if (InputFocusLost != null)
 					InputFocusLost();
 			}
@@ -1421,6 +1593,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] InputFocusAcquired event");
 				if (InputFocusAcquired != null)
 					InputFocusAcquired();
 			}
@@ -1485,6 +1658,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] AudioOutChanged event");
 				if (AudioOutChanged != null)
 					AudioOutChanged();
 			}
@@ -1506,6 +1680,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] AudioInChanged event");
 				if (AudioInChanged != null)
 					AudioInChanged();
 			}
@@ -1523,6 +1698,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] TrackingLost event");
 				if (TrackingLost != null)
 					TrackingLost();
 			}
@@ -1536,6 +1712,7 @@ public class OVRManager : MonoBehaviour
 		{
 			try
 			{
+				Debug.Log("[OVRManager] TrackingAcquired event");
 				if (TrackingAcquired != null)
 					TrackingAcquired();
 			}
@@ -1550,10 +1727,26 @@ public class OVRManager : MonoBehaviour
 		display.Update();
 		OVRInput.Update();
 
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if OVR_ANDROID_MRC
+		enableMixedReality = OVRPlugin.Media.GetInitialized() && OVRPlugin.Media.IsMrcActivated();
+		compositionMethod = CompositionMethod.External;		// force external composition on Android MRC
+
+		if (OVRPlugin.Media.GetInitialized())
+		{
+			OVRPlugin.Media.Update();
+		}
+#endif
+
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN || UNITY_ANDROID
 		if (enableMixedReality && !prevEnableMixedReality)
 		{
 			OVRPlugin.SendEvent("mixed_reality_capture", "activated");
+			Debug.Log("MixedRealityCapture: activate");
+		}
+
+		if (!enableMixedReality && prevEnableMixedReality)
+		{
+			Debug.Log("MixedRealityCapture: deactivate");
 		}
 
 		if (enableMixedReality || prevEnableMixedReality)
@@ -1633,8 +1826,15 @@ public class OVRManager : MonoBehaviour
 			perfTcpServer.enabled = false;
 		}
 
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN || UNITY_ANDROID
 		OVRMixedReality.Cleanup();
+#endif
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+		if (OVRPlugin.Media.GetInitialized())
+		{
+			OVRPlugin.Media.Shutdown();
+		}
 #endif
 	}
 
@@ -1648,6 +1848,43 @@ public class OVRManager : MonoBehaviour
 		OVRInput.FixedUpdate();
 	}
 
+	private void OnDestroy()
+	{
+		Debug.Log("[OVRManager] OnDestroy");
+		OVRManagerinitialized = false;
+	}
+
+	private void OnApplicationPause(bool pause)
+	{
+		if (pause)
+		{
+			Debug.Log("[OVRManager] OnApplicationPause(true)");
+		}
+		else
+		{
+			Debug.Log("[OVRManager] OnApplicationPause(false)");
+		}
+	}
+
+	private void OnApplicationFocus(bool focus)
+	{
+		if (focus)
+		{
+			Debug.Log("[OVRManager] OnApplicationFocus(true)");
+		}
+		else
+		{
+			Debug.Log("[OVRManager] OnApplicationFocus(false)");
+		}
+	}
+
+	private void OnApplicationQuit()
+	{
+		Debug.Log("[OVRManager] OnApplicationQuit");
+	}
+
+#endregion // Unity Messages
+
 	/// <summary>
 	/// Leaves the application/game and returns to the launcher/dashboard
 	/// </summary>
@@ -1656,8 +1893,6 @@ public class OVRManager : MonoBehaviour
 		// show the platform UI quit prompt
 		OVRManager.PlatformUIConfirmQuit();
 	}
-
-#endregion
 
 	public static void PlatformUIConfirmQuit()
 	{

@@ -11,7 +11,7 @@ public class Streak : MonoBehaviour {
 
     void Start()
     {
-        initialTimer = Random.Range(0.0f, 3.0f);
+        initialTimer = Random.Range(0.1f, 1.0f);
         timeLeft = initialTimer;
         stage = 0;
         trail = GetComponent<TrailRenderer>();
@@ -21,7 +21,7 @@ public class Streak : MonoBehaviour {
         //timer ran out
         if (timeLeft < 0) {
             //new time
-            timeLeft = Random.Range(0.0f, 3.0f);
+            timeLeft = Random.Range(0.1f, 1.0f);
 
             if (stage == 0) {
                 stage++;

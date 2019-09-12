@@ -18,6 +18,7 @@ public class FlyingModel : MonoBehaviour {
     public float minSpeed;
     public float decelerationSpeedMultipler;
     public float accelerationSpeedMultipler;
+    public float rotationalSpeed;
 
     /* bools for actions */
     public bool bTurnUp;
@@ -52,8 +53,21 @@ public class FlyingModel : MonoBehaviour {
     public int currentFlapType;
     public Vector3 birdFlapStartPosition;
     public float flapHeightIncrease;
+    public float RCStartHeight;
+    public float LCStartHeight;
+    public float RCEndHeight;
+    public float LCEndHeight;
+    public float controllerFlapThreshold;
 
     /*Landing */
     public bool bisLanding;
 
+    /* */
+    public bool bSwitchFromGround;
+
+    /* Wind */
+    public AudioSource WindSound;
+    public GameObject maxWind;
+    public GameObject medWind;
+    public GameObject minWind;
 }

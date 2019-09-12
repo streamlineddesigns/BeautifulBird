@@ -1,0 +1,460 @@
+fileFormatVersion: 2
+guid: d740792d862373c439302bdc5aff5e94
+timeCreated: 1568326961
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: BeakBottom
+    100002: BeakTop
+    100004: BeakTop_end
+    100006: //RootNode
+    100008: But
+    100010: But02
+    100012: Camera
+    100014: CG
+    100016: Head
+    100018: L Calf
+    100020: L Clavicle
+    100022: L Finger
+    100024: L Foot
+    100026: L Forearm
+    100028: L Hand
+    100030: L Thigh
+    100032: L Toe0
+    100034: L Toe01
+    100036: L Toe01_end
+    100038: L Toe1
+    100040: L Toe11
+    100042: L Toe11_end
+    100044: L Toe2
+    100046: L Toe21
+    100048: L Toe21_end
+    100050: L Toe3
+    100052: L Toe31
+    100054: L Toe31_end
+    100056: L UpperArm
+    100058: LEyeLid
+    100060: LEyeLid_end
+    100062: LFeather1
+    100064: LFeather10
+    100066: LFeather1002
+    100068: LFeather1002_end
+    100070: LFeather102
+    100072: LFeather102_end
+    100074: LFeather11
+    100076: LFeather1102
+    100078: LFeather1102_end
+    100080: LFeather12
+    100082: LFeather1202
+    100084: LFeather1202_end
+    100086: LFeather13
+    100088: LFeather1302
+    100090: LFeather1302_end
+    100092: LFeather14
+    100094: LFeather1402
+    100096: LFeather1402_end
+    100098: LFeather15
+    100100: LFeather1502
+    100102: LFeather1502_end
+    100104: LFeather16
+    100106: LFeather1602
+    100108: LFeather1602_end
+    100110: LFeather2
+    100112: LFeather202
+    100114: LFeather202_end
+    100116: LFeather3
+    100118: LFeather302
+    100120: LFeather302_end
+    100122: LFeather4
+    100124: LFeather402
+    100126: LFeather402_end
+    100128: LFeather5
+    100130: LFeather502
+    100132: LFeather502_end
+    100134: LFeather6
+    100136: LFeather602
+    100138: LFeather602_end
+    100140: LFeather7
+    100142: LFeather702
+    100144: LFeather702_end
+    100146: LFeather8
+    100148: LFeather802
+    100150: LFeather802_end
+    100152: LFeather9
+    100154: LFeather902
+    100156: LFeather902_end
+    100158: Light
+    100160: LTail01
+    100162: LTail01_end
+    100164: LTail02
+    100166: LTail02_end
+    100168: LTail03
+    100170: LTail03_end
+    100172: LTail04
+    100174: LTail04_end
+    100176: LTail05
+    100178: LTail05_end
+    100180: Neck
+    100182: Pelvis
+    100184: R Calf
+    100186: R Clavicle
+    100188: R Finger
+    100190: R Foot
+    100192: R Forearm
+    100194: R Hand
+    100196: R Thigh
+    100198: R Toe0
+    100200: R Toe01
+    100202: R Toe01_end
+    100204: R Toe1
+    100206: R Toe11
+    100208: R Toe11_end
+    100210: R Toe2
+    100212: R Toe21
+    100214: R Toe21_end
+    100216: R Toe3
+    100218: R Toe31
+    100220: R Toe31_end
+    100222: R UpperArm
+    100224: Raven Poly Art
+    100226: REyeLid
+    100228: REyeLid_end
+    100230: RFeather1
+    100232: RFeather10
+    100234: RFeather1002
+    100236: RFeather1002_end
+    100238: RFeather102
+    100240: RFeather102_end
+    100242: RFeather11
+    100244: RFeather1102
+    100246: RFeather1102_end
+    100248: RFeather12
+    100250: RFeather1202
+    100252: RFeather1202_end
+    100254: RFeather13
+    100256: RFeather1302
+    100258: RFeather1302_end
+    100260: RFeather14
+    100262: RFeather1402
+    100264: RFeather1402_end
+    100266: RFeather15
+    100268: RFeather1502
+    100270: RFeather1502_end
+    100272: RFeather16
+    100274: RFeather1602
+    100276: RFeather1602_end
+    100278: RFeather2
+    100280: RFeather202
+    100282: RFeather202_end
+    100284: RFeather3
+    100286: RFeather302
+    100288: RFeather302_end
+    100290: RFeather4
+    100292: RFeather402
+    100294: RFeather402_end
+    100296: RFeather5
+    100298: RFeather502
+    100300: RFeather502_end
+    100302: RFeather6
+    100304: RFeather602
+    100306: RFeather602_end
+    100308: RFeather7
+    100310: RFeather702
+    100312: RFeather702_end
+    100314: RFeather8
+    100316: RFeather802
+    100318: RFeather802_end
+    100320: RFeather9
+    100322: RFeather902
+    100324: RFeather902_end
+    100326: RTail01
+    100328: RTail01_end
+    100330: RTail02
+    100332: RTail02_end
+    100334: RTail03
+    100336: RTail03_end
+    100338: RTail04
+    100340: RTail04_end
+    100342: RTail05
+    100344: RTail05_end
+    100346: Spine
+    100348: Spine1
+    100350: Tail Center
+    100352: Tail Center_end
+    100354: Throat
+    100356: Throat_end
+    100358: Tongue
+    100360: Tongue_end
+    100362: Raven Poly Art.001
+    400000: BeakBottom
+    400002: BeakTop
+    400004: BeakTop_end
+    400006: //RootNode
+    400008: But
+    400010: But02
+    400012: Camera
+    400014: CG
+    400016: Head
+    400018: L Calf
+    400020: L Clavicle
+    400022: L Finger
+    400024: L Foot
+    400026: L Forearm
+    400028: L Hand
+    400030: L Thigh
+    400032: L Toe0
+    400034: L Toe01
+    400036: L Toe01_end
+    400038: L Toe1
+    400040: L Toe11
+    400042: L Toe11_end
+    400044: L Toe2
+    400046: L Toe21
+    400048: L Toe21_end
+    400050: L Toe3
+    400052: L Toe31
+    400054: L Toe31_end
+    400056: L UpperArm
+    400058: LEyeLid
+    400060: LEyeLid_end
+    400062: LFeather1
+    400064: LFeather10
+    400066: LFeather1002
+    400068: LFeather1002_end
+    400070: LFeather102
+    400072: LFeather102_end
+    400074: LFeather11
+    400076: LFeather1102
+    400078: LFeather1102_end
+    400080: LFeather12
+    400082: LFeather1202
+    400084: LFeather1202_end
+    400086: LFeather13
+    400088: LFeather1302
+    400090: LFeather1302_end
+    400092: LFeather14
+    400094: LFeather1402
+    400096: LFeather1402_end
+    400098: LFeather15
+    400100: LFeather1502
+    400102: LFeather1502_end
+    400104: LFeather16
+    400106: LFeather1602
+    400108: LFeather1602_end
+    400110: LFeather2
+    400112: LFeather202
+    400114: LFeather202_end
+    400116: LFeather3
+    400118: LFeather302
+    400120: LFeather302_end
+    400122: LFeather4
+    400124: LFeather402
+    400126: LFeather402_end
+    400128: LFeather5
+    400130: LFeather502
+    400132: LFeather502_end
+    400134: LFeather6
+    400136: LFeather602
+    400138: LFeather602_end
+    400140: LFeather7
+    400142: LFeather702
+    400144: LFeather702_end
+    400146: LFeather8
+    400148: LFeather802
+    400150: LFeather802_end
+    400152: LFeather9
+    400154: LFeather902
+    400156: LFeather902_end
+    400158: Light
+    400160: LTail01
+    400162: LTail01_end
+    400164: LTail02
+    400166: LTail02_end
+    400168: LTail03
+    400170: LTail03_end
+    400172: LTail04
+    400174: LTail04_end
+    400176: LTail05
+    400178: LTail05_end
+    400180: Neck
+    400182: Pelvis
+    400184: R Calf
+    400186: R Clavicle
+    400188: R Finger
+    400190: R Foot
+    400192: R Forearm
+    400194: R Hand
+    400196: R Thigh
+    400198: R Toe0
+    400200: R Toe01
+    400202: R Toe01_end
+    400204: R Toe1
+    400206: R Toe11
+    400208: R Toe11_end
+    400210: R Toe2
+    400212: R Toe21
+    400214: R Toe21_end
+    400216: R Toe3
+    400218: R Toe31
+    400220: R Toe31_end
+    400222: R UpperArm
+    400224: Raven Poly Art
+    400226: REyeLid
+    400228: REyeLid_end
+    400230: RFeather1
+    400232: RFeather10
+    400234: RFeather1002
+    400236: RFeather1002_end
+    400238: RFeather102
+    400240: RFeather102_end
+    400242: RFeather11
+    400244: RFeather1102
+    400246: RFeather1102_end
+    400248: RFeather12
+    400250: RFeather1202
+    400252: RFeather1202_end
+    400254: RFeather13
+    400256: RFeather1302
+    400258: RFeather1302_end
+    400260: RFeather14
+    400262: RFeather1402
+    400264: RFeather1402_end
+    400266: RFeather15
+    400268: RFeather1502
+    400270: RFeather1502_end
+    400272: RFeather16
+    400274: RFeather1602
+    400276: RFeather1602_end
+    400278: RFeather2
+    400280: RFeather202
+    400282: RFeather202_end
+    400284: RFeather3
+    400286: RFeather302
+    400288: RFeather302_end
+    400290: RFeather4
+    400292: RFeather402
+    400294: RFeather402_end
+    400296: RFeather5
+    400298: RFeather502
+    400300: RFeather502_end
+    400302: RFeather6
+    400304: RFeather602
+    400306: RFeather602_end
+    400308: RFeather7
+    400310: RFeather702
+    400312: RFeather702_end
+    400314: RFeather8
+    400316: RFeather802
+    400318: RFeather802_end
+    400320: RFeather9
+    400322: RFeather902
+    400324: RFeather902_end
+    400326: RTail01
+    400328: RTail01_end
+    400330: RTail02
+    400332: RTail02_end
+    400334: RTail03
+    400336: RTail03_end
+    400338: RTail04
+    400340: RTail04_end
+    400342: RTail05
+    400344: RTail05_end
+    400346: Spine
+    400348: Spine1
+    400350: Tail Center
+    400352: Tail Center_end
+    400354: Throat
+    400356: Throat_end
+    400358: Tongue
+    400360: Tongue_end
+    400362: Raven Poly Art.001
+    2000000: Camera
+    2100000: 01 - Default
+    4300000: Raven Poly Art
+    4300002: Raven Poly Art.001
+    7400000: CG|CG|Take 001|BaseLayer
+    9500000: //RootNode
+    10800000: Light
+    13700000: Raven Poly Art
+    13700002: Raven Poly Art.001
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

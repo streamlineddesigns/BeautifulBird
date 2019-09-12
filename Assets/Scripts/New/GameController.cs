@@ -4,21 +4,33 @@ using UnityEngine;
 
 
 public class GameController : MonoBehaviour {
+    public static GameController Singleton;
     public GameObject StartPanel;
     public GameObject LaserPointer;
     public GameObject OneSecondLeft;
     public GameObject TwoSecondLeft;
     public GameObject ThreeSecondLeft;
     public GameObject FlyingScripts;
+    public GameObject WalkingScripts;
     public GameObject CountDownPanel;
+    public GameObject Target;
+    public CharacterController playerController;
+    public GameObject flyingCamera;
+    public GameObject walkingCamera;
+    public int controllerSwitch;//0-flying;1-walkie;
     void Awake()
     {
-        
+        Singleton = this;
     }
 
     void Start() 
     {
         
+    }
+
+    void Update()
+    {
+        SwitchControllers();
     }
     public void StartGame() {
         LaserPointer.SetActive(false);
@@ -39,6 +51,23 @@ public class GameController : MonoBehaviour {
         yield return new WaitForSeconds(1.0f);
         OneSecondLeft.SetActive(false);
         CountDownPanel.SetActive(false);
+        WalkingScripts.SetActive(true);
         FlyingScripts.SetActive(true);
+    }
+
+    public void SwitchControllers()
+    {
+        if (Feet.Singleton.grounded) {
+            controllerSwitch = 1;
+            flyingCamera.SetActive(false);
+            walkingCamera.SetActive(true);
+            Target.SetActive(false);
+            
+        } else if (! Feet.Singleton.grounded) {
+            controllerSwitch = 0;
+            flyingCamera.SetActive(true);
+            walkingCamera.SetActive(false);
+            Target.SetActive(true);
+        }
     }
 }

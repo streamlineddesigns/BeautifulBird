@@ -11,6 +11,12 @@ public class GroundMovementController : MonoBehaviour {
 	public GameObject cameraRig;
 	public GameObject RC;
 	public GameObject LC;
+	public GameObject walkingCamera;
+	public GameObject flyingCamera;
+	public GameObject BirdContainer;
+	public GameObject Bird;
+	protected float speedModifier;
+	public FlyingModel FlyingModel;
 
 	// Use this for initialization
 	void Start () {
@@ -18,26 +24,32 @@ public class GroundMovementController : MonoBehaviour {
 		groundMovementModel.timer = groundMovementModel.timeForMoveThreshHold;
 
 		groundMovementModel.rotationThreshold = 45.0f;
-		groundMovementModel.rotationSpeed = 0.75f;
+		groundMovementModel.rotationSpeed = 0.30f;
 
 		groundMovementModel.armMovementThreshold = 20.0f;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		/*if (! GameController.Singleton.groundControlIsOn) {
+		if (GameController.Singleton.controllerSwitch != 1) {
+
+			if (groundMovementModel.bSwitchFromFlying) {
+                groundMovementModel.bSwitchFromFlying = false;
+            }
+
             return;
-        } */
+        }
 
-
-		//if the player isn't grounded, ignore everything else
-		if (! playerController.isGrounded) {
-			Fall();
-			///return;
-		}
+		//player started walking after being in the air
+        if (! groundMovementModel.bSwitchFromFlying) {
+            groundMovementModel.bSwitchFromFlying = true;
+            //play normal walking animation
+            FlyingModel.BirdAnimator.SetBool("Fly", false);
+            FlyingModel.BirdAnimator.SetFloat("Vertical", 0.0f);
+        }
 
 		rotationalCheck();
-		JumpCheck();
+		//JumpCheck();
 
 		//if one of the arms isn't higher than the other
 		if (! groundMovementModel.armPositionSet) {
@@ -66,7 +78,7 @@ public class GroundMovementController : MonoBehaviour {
 		//Debug.Log(playerLookingDirection.transform.localRotation.eulerAngles.y);
 		//if the players looking direction is greater than the rotational threshold
 		if (playerLookingDirection.transform.localRotation.eulerAngles.y >= 180) {
-
+			
 			if (Mathf.Abs(playerLookingDirection.transform.localRotation.eulerAngles.y - 360) >= groundMovementModel.rotationThreshold) {
 				groundMovementModel.bCurrentlyRotating = true;
 				//left rotation
@@ -200,6 +212,7 @@ public class GroundMovementController : MonoBehaviour {
 		Vector3 rightHandCurPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
 
 		if (leftHandCurPos.y > rightHandCurPos.y + groundMovementModel.movementThreshHold) {
+			speedModifier = leftHandCurPos.y - rightHandCurPos.y + groundMovementModel.movementThreshHold;
 			return true;
 		} else {
 			return false;
@@ -212,6 +225,7 @@ public class GroundMovementController : MonoBehaviour {
 		Vector3 rightHandCurPos = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
 
 		if (rightHandCurPos.y > leftHandCurPos.y + groundMovementModel.movementThreshHold) {
+			speedModifier = rightHandCurPos.y - leftHandCurPos.y + groundMovementModel.movementThreshHold;
 			return true;
 		} else {
 			return false;
@@ -254,14 +268,18 @@ public class GroundMovementController : MonoBehaviour {
 		} else if () {
 
 		}*/
-		Vector3 accelerationVector = player.transform.TransformDirection(playerLookingDirection.transform.forward) * (0.055f * groundMovementModel.speedMultiplier);
-		playerController.Move(accelerationVector);
+		//Vector3 accelerationVector = player.transform.TransformDirection(Bird.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
+		//playerController.Move(accelerationVector);
+
+		//BirdContainer.transform.Translate(cameraRig.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
+		//Bird.transform.Translate(BirdContainer.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
+		BirdContainer.transform.Translate(Bird.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
 	}
 
 	public void Fall()
 	{
 		Vector3 accelerationVector = player.transform.TransformDirection(playerLookingDirection.transform.forward) * (0.055f * groundMovementModel.speedMultiplier);
-		accelerationVector.y -= 0.01f;
+		accelerationVector.y -= 0.05f;
 		playerController.Move(accelerationVector);
 		//Vector3 moveDirection = Vector3.zero;
 		//moveDirection.y -= 0.01f;
@@ -271,16 +289,18 @@ public class GroundMovementController : MonoBehaviour {
 	protected void rotateLeftAction()
     {
 		Vector3 targetRotation;
-		targetRotation = cameraRig.transform.eulerAngles;
+		targetRotation = Bird.transform.eulerAngles;
         targetRotation.y -= groundMovementModel.rotationSpeed;
-		cameraRig.transform.eulerAngles = targetRotation;
+		FlyingModel.yawValue -= groundMovementModel.rotationSpeed;
+		Bird.transform.eulerAngles = targetRotation;
     }
 
     protected void rotateRightAction()
     {
 		Vector3 targetRotation;
-		targetRotation = cameraRig.transform.eulerAngles;
+		targetRotation = Bird.transform.eulerAngles;
         targetRotation.y += groundMovementModel.rotationSpeed;
-		cameraRig.transform.eulerAngles = targetRotation;
+		FlyingModel.yawValue += groundMovementModel.rotationSpeed;
+		Bird.transform.eulerAngles = targetRotation;
     }
 }

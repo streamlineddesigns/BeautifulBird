@@ -24,6 +24,9 @@ Shader "OvrAvatar/Avatar_PC_SingleComponent"
         _SmoothnessMultiplier("Smoothness Multiplier", Range(0.0,1.0)) = 1.0
         _MetallicMultiplier("Metallic Multiplier", Range(0.0,1.0)) = 1.0
         _RimIntensity("Rim Intensity", Range(0.0,10.0)) = 5.0
+
+        [HideInInspector] _SrcBlend("", Float) = 1
+        [HideInInspector] _DstBlend("", Float) = 0
     }
     
     SubShader

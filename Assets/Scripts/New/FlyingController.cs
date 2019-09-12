@@ -21,7 +21,8 @@ public class FlyingController : MonoBehaviour {
         //thresholds
         FlyingModel.pitchThreshold = 1.0f;
         FlyingModel.rollThreshold = 1.0f;
-        FlyingModel.wingFlapThreshold = 20.0f;
+        FlyingModel.wingFlapThreshold = 20.0f;//this is rotational degrees
+        FlyingModel.controllerFlapThreshold = 1.0f;//this is height
 
         //Speed
         FlyingModel.originalFlyingSpeed = 3.0f;
@@ -300,6 +301,10 @@ public class FlyingController : MonoBehaviour {
 
                 /* flapping up true */
                 FlyingModel.bFlappingUp = true;
+
+                FlyingModel.RCStartHeight = RC.transform.position.y;
+                FlyingModel.LCStartHeight = LC.transform.position.y;
+                
                 FlyingModel.bLerpFlap = true;
                 FlyingModel.birdFlapStartPosition = Bird.transform.position;
 
@@ -326,15 +331,18 @@ public class FlyingController : MonoBehaviour {
 
                 /* flapping down true */
                 FlyingModel.bFlappingDown = true;
+                FlyingModel.RCEndHeight = RC.transform.position.y;
+                FlyingModel.LCEndHeight = LC.transform.position.y;
 
                 //if the current flap type doesn't reflect downward flap as last previous move
                 if (FlyingModel.currentFlapType != 1) {
                     //set current flap type to 1
                     FlyingModel.currentFlapType = 1;
 
-                    /* Flapping wings true */
-                    FlyingModel.bFlappingWings = true;
-
+                    if ((FlyingModel.RCStartHeight - FlyingModel.controllerFlapThreshold > FlyingModel.RCEndHeight) && (FlyingModel.LCStartHeight - FlyingModel.controllerFlapThreshold > FlyingModel.LCEndHeight)) {
+                        /* Flapping wings true */
+                        FlyingModel.bFlappingWings = true;
+                    }
                 }
 
             } else {

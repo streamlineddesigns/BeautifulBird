@@ -12,7 +12,7 @@ public class GroundMovementModel : MonoBehaviour {
 	public float movementThreshHold = 0.15f;
 
 	[System.NonSerialized]
-	public float timeForMoveThreshHold = 1.0f;
+	public float timeForMoveThreshHold = 0.75f;
 	public float timer;
 	public float speedMultiplier;
 	public bool bIsWalking;
@@ -26,5 +26,8 @@ public class GroundMovementModel : MonoBehaviour {
 	//Jumping
 	public float armMovementThreshold;
 	public bool bJumping;
-	public float bJumpHeight = 3.5f;
+	public float bJumpHeight = 2.0f;
+
+	//Player started walking after having been flying
+	public bool bSwitchFromFlying;
 }

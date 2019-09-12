@@ -37,10 +37,14 @@ Shader "OvrAvatar/Avatar_Mobile_CombinedMesh"
         [HideInInspector] _MouthDirection("Mouth direction", Vector) = (0,0,0,1)
         [HideInInspector] _MouthEffectDistance("Mouth Effect Distance", Float) = 0.03
         [HideInInspector] _MouthEffectScale("Mouth Effect Scaler", Float) = 1
+
+        [HideInInspector] _SrcBlend("", Float) = 1
+        [HideInInspector] _DstBlend("", Float) = 0
     }
 
     SubShader
     {
+        Tags { "LightMode" = "ForwardBase" "IgnoreProjector" = "True"}
         Pass
         {
             Blend [_SrcBlend] [_DstBlend]

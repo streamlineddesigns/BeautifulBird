@@ -22,11 +22,15 @@ public class Flapping : MonoBehaviour {
     public GameObject WarpDrive;
     protected ParticleSystem WarpDriveParticles;
     public GameObject warningToFlapText;
+    public GameObject lookingDirection;
+    public float upModifier;
+    public CharacterController playerController;
+    public GameObject flyingCamera;
 
 
     void Awake() 
     {
-        
+        Application.targetFrameRate = 90;
     }
     void Start() 
     {
@@ -38,22 +42,23 @@ public class Flapping : MonoBehaviour {
         FlyingModel.timeLeft = FlyingModel.initialTime;
 
         //thresholds
-        FlyingModel.pitchThreshold = 1.0f;
-        FlyingModel.rollThreshold = 1.0f;
-        FlyingModel.wingFlapThreshold = 20.0f;
-        FlyingModel.diveThreshold = 45.0f;
+        FlyingModel.pitchThreshold = 2.5f;
+        FlyingModel.rollThreshold = 7.5f;
+        FlyingModel.wingFlapThreshold = 20.0f;//this is rotation
+        FlyingModel.controllerFlapThreshold = 0.075f;//this is height
+        FlyingModel.diveThreshold = 50.0f;
 
         //flapping
         FlyingModel.flapHeightIncrease = 2.0f;
 
         //Speeds
         //Speed
-        FlyingModel.originalFlyingSpeed = 2.0f;
+        FlyingModel.originalFlyingSpeed = 2.5f;
         FlyingModel.flyingSpeed = FlyingModel.originalFlyingSpeed;
         FlyingModel.maxSpeed = 7.0f;
         FlyingModel.minSpeed = 0.0f;
-        FlyingModel.decelerationSpeedMultipler = 0.0075f;
-        FlyingModel.accelerationSpeedMultipler = 0.0075f;
+        FlyingModel.decelerationSpeedMultipler = 0.008f;
+        FlyingModel.accelerationSpeedMultipler = 0.008f;
 
         GravityForce = 0.0075f;
         OriginalGravity = GravityForce;
@@ -64,6 +69,48 @@ public class Flapping : MonoBehaviour {
 
     void Update() 
     {
+        
+        if (GameController.Singleton.controllerSwitch != 0) {
+
+
+            //reset the speed if the player is walking
+            if (FlyingModel.flyingSpeed > 0) {
+                FlyingModel.flyingSpeed = 0;
+            }
+
+            //reset the switch
+            if (FlyingModel.bSwitchFromGround) {
+                FlyingModel.bSwitchFromGround = false;
+                //reset the pitch
+                if (Bird.transform.rotation.eulerAngles.x != 0.0f) {
+                    FlyingModel.pitchValue = 0.0f;
+                    //Bird.transform.rotation = new Vector3(FlyingModel.pitchValue, Bird.transform.rotation.eulerAngles.y, Bird.transform.rotation.eulerAngles.z);
+                    Bird.transform.rotation = Quaternion.Euler(FlyingModel.pitchValue, Bird.transform.rotation.eulerAngles.y, Bird.transform.rotation.eulerAngles.z);
+                    
+                    //to make sure they're in the ground
+                    BirdContainer.transform.position = new Vector3(BirdContainer.transform.position.x, BirdContainer.transform.position.y - 0.025f, BirdContainer.transform.position.z);
+                }
+
+                //make sure flap text is not there
+                warningToFlapText.SetActive(false);
+            }
+
+            return;
+        }
+
+
+        //player started flying after being on the ground
+        if (! FlyingModel.bSwitchFromGround) {
+            FlyingModel.bSwitchFromGround = true;
+            //play normal flying animation
+            FlyingModel.BirdAnimator.SetBool("Fly", true);
+            FlyingModel.BirdAnimator.SetFloat("Vertical", 2.0f);
+        }
+
+        //Debug.Log(FlyingModel.rotationalSpeed);
+        //Debug.Log(RC.transform.eulerAngles.x);
+        //Debug.Log(Mathf.Abs(RC.transform.eulerAngles.x - 360));
+        //Debug.Log(FlyingModel.pitchValue);        
         /* if (OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.RTouch)) {
             FlyingModel.bisLanding = true;
         }
@@ -102,6 +149,7 @@ public class Flapping : MonoBehaviour {
         } else {
             FlyingModel.BirdAnimator.SetFloat("UpDown", 0.0f);
             FlyingModel.pitchValue = 0.0f;
+            upModifier = 0.0f;
             GlidAction();
             FlyingModel.bDiving = false;
 
@@ -131,9 +179,14 @@ public class Flapping : MonoBehaviour {
         //if the player isn't flapping their wings
         if (! FlyingModel.bFlappingWings) {
 
-            
-            //check if they're flapping their wings
             FlapWingsCheck();
+            /*//if both of the grips are being pressed
+			if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.Touch) > 0.0f &&
+				OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger, OVRInput.Controller.Touch) > 0.0f) {
+					//check if they're flapping their wings
+                    FlapWingsCheck();
+			}*/
+            
 
         } else {
 
@@ -188,7 +241,7 @@ public class Flapping : MonoBehaviour {
         }
 
         //Set the birds orientation
-        Bird.transform.rotation = Quaternion.Lerp(Bird.transform.rotation, Quaternion.Euler(FlyingModel.pitchValue, FlyingModel.yawValue, FlyingModel.rollValue), 0.1f);
+        Bird.transform.rotation = Quaternion.Lerp(Bird.transform.rotation, Quaternion.Euler(FlyingModel.pitchValue, FlyingModel.yawValue, 0.0f), 0.02f);
         
         CameraFollow();
 
@@ -208,12 +261,43 @@ public class Flapping : MonoBehaviour {
             }
         }
 
-        //if the players speed is less than 20% of its original speed
-        if (FlyingModel.flyingSpeed <= FlyingModel.originalFlyingSpeed * 0.20f) {
+        //if the players speed is less than 30% of its original speed
+        if (FlyingModel.flyingSpeed <= FlyingModel.originalFlyingSpeed * 0.30f) {
             warningToFlapText.SetActive(true);
         } else {
             warningToFlapText.SetActive(false);
         }
+
+        //speed trails & sounds
+        SetWind();
+    }
+
+    protected void SetWind()
+    {
+        if (FlyingModel.flyingSpeed >= FlyingModel.maxSpeed) {
+            FlyingModel.maxWind.SetActive(true);//max
+            FlyingModel.medWind.SetActive(false);
+            FlyingModel.minWind.SetActive(false);
+        } else if (FlyingModel.flyingSpeed >= FlyingModel.maxSpeed * 0.75f) {
+            FlyingModel.medWind.SetActive(true);//med
+            FlyingModel.maxWind.SetActive(false);
+            FlyingModel.minWind.SetActive(false);
+        } else if (FlyingModel.flyingSpeed >= FlyingModel.maxSpeed * 0.50f) {
+            FlyingModel.minWind.SetActive(true);//min
+            FlyingModel.medWind.SetActive(false);
+            FlyingModel.maxWind.SetActive(false);
+        } else {
+            FlyingModel.minWind.SetActive(false);//none
+            FlyingModel.medWind.SetActive(false);
+            FlyingModel.maxWind.SetActive(false);
+        }
+
+        /*if (FlyingModel.flyingSpeed >= 1.0f) {
+            FlyingModel.WindSound.volume = FlyingModel.flyingSpeed / 10.0f;
+        } else {
+            FlyingModel.WindSound.volume = FlyingModel.flyingSpeed / 10.0f;
+        }*/
+        FlyingModel.WindSound.volume = (FlyingModel.flyingSpeed / 10.0f) - 0.6f;
     }
 
     protected bool IsGrounded()
@@ -257,8 +341,7 @@ public class Flapping : MonoBehaviour {
     }
     protected void TurnUpCheck()
     {
-        //if both the controllers are being rolled up
-        if (RC.transform.eulerAngles.z > 180 && LC.transform.eulerAngles.z < 180) {
+        if (RC.transform.eulerAngles.z > 180 && LC.transform.eulerAngles.z < 180 && (Mathf.Abs(RC.transform.eulerAngles.z - 360) > FlyingModel.pitchThreshold && Mathf.Abs(LC.transform.eulerAngles.z) > FlyingModel.pitchThreshold)) {
 
             //if both controllers break the rotational threshold
             if (Mathf.Abs(RC.transform.eulerAngles.z - 360) > FlyingModel.pitchThreshold && Mathf.Abs(LC.transform.eulerAngles.z) > FlyingModel.pitchThreshold) {
@@ -266,11 +349,24 @@ public class Flapping : MonoBehaviour {
                 /* turnUp true */
                 FlyingModel.bTurnUp = true;
 
-
+                
                 //set the pitch value 
-                ///FlyingModel.pitchValue = (RC.transform.eulerAngles.z + (LC.transform.eulerAngles.z * -1.0f));
+                //FlyingModel.pitchValue = (RC.transform.eulerAngles.z + (LC.transform.eulerAngles.z * -1.0f));
+                //FlyingModel.pitchValue = upModifier + ((Mathf.Abs(RC.transform.eulerAngles.z - 360) + (LC.transform.eulerAngles.z)) * -1.0f) / 2.0f;
                 FlyingModel.pitchValue = ((Mathf.Abs(RC.transform.eulerAngles.z - 360) + (LC.transform.eulerAngles.z)) * -1.0f) / 2.0f;
-
+                //Debug.Log(Camera.transform.eulerAngles.x);
+                
+                //if the headset breaks the rotational threshold, average it with the controllers, otherwise only average the controllers
+                //if (((((Camera.transform.eulerAngles.x - 360) - FlyingModel.pitchThreshold) * -1.0f) > 45) && (((Camera.transform.eulerAngles.x - 360) * -1.0f) < 90 )) {
+                /*if (lookingDirection.transform.eulerAngles.x > 270 && lookingDirection.transform.eulerAngles.x < 360) {
+                    FlyingModel.pitchValue = ( ((lookingDirection.transform.eulerAngles.x - 360)) + (Mathf.Abs(RC.transform.eulerAngles.z - 360) + (LC.transform.eulerAngles.z)) * -1.0f) / 3.0f;
+                    
+                    //Debug.Log(((lookingDirection.transform.eulerAngles.x - 360) * - 1.0f));
+                    //Debug.Log(Mathf.Abs(RC.transform.eulerAngles.z - 360));
+                } else {
+                    FlyingModel.pitchValue = ((Mathf.Abs(RC.transform.eulerAngles.z - 360) + (LC.transform.eulerAngles.z)) * -1.0f) / 2.0f;
+                } */
+                
                 //if haptic feedback hasn't been trigger
                 if (! FlyingModel.bTurnUpHaptic) {
                     FlyingModel.bTurnUpHaptic = true;
@@ -283,6 +379,7 @@ public class Flapping : MonoBehaviour {
                 FlyingModel.bTurnUpHaptic = false;
             }
 
+        //if the headset breaks a larger rotational threshold
         } else {
             /* turnUp false */
             FlyingModel.bTurnUp = false;
@@ -301,10 +398,11 @@ public class Flapping : MonoBehaviour {
                 /* turnUp true */
                 FlyingModel.bTurnDown = true;
 
-
+                
                 //set the pitch value 
-                FlyingModel.pitchValue = ((Mathf.Abs(LC.transform.eulerAngles.z - 360) + RC.transform.eulerAngles.z)) / 2.0f;
-
+                FlyingModel.pitchValue = ((Mathf.Abs(RC.transform.eulerAngles.z - 360) + (LC.transform.eulerAngles.z)) * -1.0f) / 2.0f;
+                //FlyingModel.pitchValue += 1.0f;
+                
                 //if haptic feedback hasn't been trigger
                 if (! FlyingModel.bTurnDownHaptic) {
                     FlyingModel.bTurnDownHaptic = true;
@@ -331,12 +429,15 @@ public class Flapping : MonoBehaviour {
 
             //if both controllers break the rotational threshold
             if (Mathf.Abs(RC.transform.eulerAngles.x - 360) > FlyingModel.rollThreshold && Mathf.Abs(LC.transform.eulerAngles.x) > FlyingModel.rollThreshold) {
-                
-                /* turnLeft true */
-                FlyingModel.bTurnLeft = true;
 
                 //set the roll value 
                 FlyingModel.rollValue = ((Mathf.Abs(RC.transform.eulerAngles.x - 360) + LC.transform.eulerAngles.x)) / 2.0f;
+
+                //set rotation speed
+                FlyingModel.rotationalSpeed = 0.2f + ((Mathf.Abs(FlyingModel.rollValue) / FlyingModel.rollThreshold) / 3.0f) * 0.1f;
+
+                /* turnLeft true */
+                FlyingModel.bTurnLeft = true;
 
                 //if haptic feedback hasn't been trigger
                 if (! FlyingModel.bTurnLeftHaptic) {
@@ -364,12 +465,15 @@ public class Flapping : MonoBehaviour {
 
             //if both controllers break the rotational threshold
             if (Mathf.Abs(RC.transform.eulerAngles.x) > FlyingModel.rollThreshold && Mathf.Abs(LC.transform.eulerAngles.x - 360) > FlyingModel.rollThreshold) {
-                
-                /* turnRight true */
-                FlyingModel.bTurnRight = true;
 
                 //set the roll value 
                 FlyingModel.rollValue = (((Mathf.Abs(LC.transform.eulerAngles.x - 360) + RC.transform.eulerAngles.x)) * -1.0f) / 2.0f;
+
+                //set rotation speed
+                FlyingModel.rotationalSpeed = 0.2f + ((Mathf.Abs(FlyingModel.rollValue) / FlyingModel.rollThreshold) / 3.0f) * 0.1f;
+
+                /* turnRight true */
+                FlyingModel.bTurnRight = true;
 
                 //if haptic feedback hasn't been trigger
                 if (! FlyingModel.bTurnRightHaptic) {
@@ -393,7 +497,7 @@ public class Flapping : MonoBehaviour {
     protected void FlapWingsCheck()
     {
         //arms are up
-        if (LC.transform.eulerAngles.x > 180 && RC.transform.eulerAngles.x > 180) {
+        if (Mathf.Abs(LC.transform.eulerAngles.x - 360) < 90 && Mathf.Abs(RC.transform.eulerAngles.x - 360) < 90) {
             
             //if both controllers break the wing flap threshold
             if (Mathf.Abs(LC.transform.eulerAngles.x - 360) > FlyingModel.wingFlapThreshold && Mathf.Abs(RC.transform.eulerAngles.x - 360) > FlyingModel.wingFlapThreshold) {
@@ -402,6 +506,9 @@ public class Flapping : MonoBehaviour {
                 FlyingModel.bFlappingUp = true;
                 FlyingModel.bLerpFlap = true;
                 FlyingModel.birdFlapStartPosition = Bird.transform.position;
+
+                FlyingModel.RCStartHeight = RC.transform.position.y;
+                FlyingModel.LCStartHeight = LC.transform.position.y;
 
                 //if the current flap type doesn't reflect upward flap as last previous move
                 if (FlyingModel.currentFlapType != 0) {
@@ -426,20 +533,24 @@ public class Flapping : MonoBehaviour {
 
                 /* flapping down true */
                 FlyingModel.bFlappingDown = true;
+                FlyingModel.RCEndHeight = RC.transform.position.y;
+                FlyingModel.LCEndHeight = LC.transform.position.y;
 
                 //if the current flap type doesn't reflect downward flap as last previous move
                 if (FlyingModel.currentFlapType != 1) {
                     //set current flap type to 1
                     FlyingModel.currentFlapType = 1;
-
-                    /* Flapping wings true */
                     FlyingModel.bFlappingWings = true;
+                    /*if ((Mathf.Abs(FlyingModel.RCStartHeight - FlyingModel.RCEndHeight) >= FlyingModel.controllerFlapThreshold) && (Mathf.Abs(FlyingModel.LCStartHeight - FlyingModel.LCEndHeight) >= FlyingModel.controllerFlapThreshold))  {
+                        /* Flapping wings true 
+                        FlyingModel.bFlappingWings = true;
+                    } */
 
                 }
 
             } else {
                 /* flapping down false */
-                FlyingModel.bFlappingDown = false;
+                //FlyingModel.bFlappingDown = false;
             }
 
         //arms are semi-flat in a T-pose
@@ -477,12 +588,12 @@ public class Flapping : MonoBehaviour {
 
     protected void TurnLeftAction()
     {
-        FlyingModel.yawValue -= 1.20f * (Mathf.Abs(FlyingModel.rollValue) / 100);
+        FlyingModel.yawValue -= FlyingModel.rotationalSpeed;
     }
 
     protected void TurnRightAction()
     {
-        FlyingModel.yawValue += 1.20f * (Mathf.Abs(FlyingModel.rollValue) / 100);
+        FlyingModel.yawValue += FlyingModel.rotationalSpeed;
     }
 
     protected void TurnUpAction()
@@ -499,17 +610,9 @@ public class Flapping : MonoBehaviour {
             FlyingModel.flyingSpeed = FlyingModel.minSpeed;
 
         } else {
-
-            //if they're tilting more than 15 degrees upwards
-            if ((Mathf.Abs(RC.transform.eulerAngles.z - 360) > 5 && Mathf.Abs(LC.transform.eulerAngles.z) > 5)) {
-                //decelerate flying speed by normal amount
-                newSpeed = FlyingModel.flyingSpeed - FlyingModel.decelerationSpeedMultipler;
-                FlyingModel.flyingSpeed = newSpeed;
-            } else {
-                //decelerate flying speed by a tenth of the normal amount
-                newSpeed = FlyingModel.flyingSpeed - (FlyingModel.decelerationSpeedMultipler * 0.1f);
-                FlyingModel.flyingSpeed = newSpeed;
-            }
+            //decelerate flying speed by normal amount
+            newSpeed = FlyingModel.flyingSpeed - FlyingModel.decelerationSpeedMultipler;
+            FlyingModel.flyingSpeed = newSpeed;
         }
     }
     protected void TurnDownAction()
@@ -574,6 +677,8 @@ public class Flapping : MonoBehaviour {
         //OVRInput.SetControllerVibration (0.5f, 0.5f, OVRInput.Controller.RTouch);
         //OVRInput.SetControllerVibration (0.5f, 0.5f, OVRInput.Controller.LTouch);
     }
+
+
 }
 
 /*Flying→user presses “a” button to drop and land onto the ground
