@@ -18,6 +18,8 @@ public class GameController : MonoBehaviour {
     public GameObject flyingCamera;
     public GameObject walkingCamera;
     public int controllerSwitch;//0-flying;1-walkie;
+    public GroundMovementModel GroundMovementModel;
+
     void Awake()
     {
         Singleton = this;
@@ -63,11 +65,24 @@ public class GameController : MonoBehaviour {
             walkingCamera.SetActive(true);
             Target.SetActive(false);
             
-        } else if (! Feet.Singleton.grounded) {
-            controllerSwitch = 0;
-            flyingCamera.SetActive(true);
-            walkingCamera.SetActive(false);
-            Target.SetActive(true);
         }
+        
+        /*else if (! Feet.Singleton.grounded) {
+            //If they aren't jumping or falling
+            if (! GroundMovementModel.bJumping && ! GroundMovementModel.bIsFalling) {
+                //controllerSwitch = 0;
+                //flyingCamera.SetActive(true);
+                //walkingCamera.SetActive(false);
+                //Target.SetActive(true);
+            }
+        }*/
+    }
+
+    public void Fly()
+    {
+        controllerSwitch = 0;
+        flyingCamera.SetActive(true);
+        walkingCamera.SetActive(false);
+        Target.SetActive(true);
     }
 }

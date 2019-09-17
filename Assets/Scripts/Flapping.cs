@@ -26,6 +26,7 @@ public class Flapping : MonoBehaviour {
     public float upModifier;
     public CharacterController playerController;
     public GameObject flyingCamera;
+    public GroundMovementModel GroundMovementModel;
 
 
     void Awake() 
@@ -42,7 +43,7 @@ public class Flapping : MonoBehaviour {
         FlyingModel.timeLeft = FlyingModel.initialTime;
 
         //thresholds
-        FlyingModel.pitchThreshold = 2.5f;
+        FlyingModel.pitchThreshold = 5.0f;
         FlyingModel.rollThreshold = 7.5f;
         FlyingModel.wingFlapThreshold = 20.0f;//this is rotation
         FlyingModel.controllerFlapThreshold = 0.075f;//this is height
@@ -69,6 +70,51 @@ public class Flapping : MonoBehaviour {
 
     void Update() 
     {
+
+        //if groundMovementModel.bIsFalling
+        /*
+        
+        //if the player isn't flapping their wings
+        if (! FlyingModel.bFlappingWings) {
+
+            //FlapWingsCheck();
+            //if both of the grips are being pressed
+			if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.Touch) > 0.0f &&
+				OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger, OVRInput.Controller.Touch) > 0.0f) {
+					//check if they're flapping their wings
+                    FlapWingsCheck();
+			}
+            
+
+        //if the player is flapping their wings
+        }
+        
+         */
+
+
+        /*
+            //this allows players to flap their wings when they are groundmovement->falling or groundmovement->jumping
+         */
+
+        //if the player is in walking mode
+        if (GameController.Singleton.controllerSwitch == 1.0f) {
+            //if the player is fallin or jumping
+            if (GroundMovementModel.bIsFalling || GroundMovementModel.bJumping) {
+                //if the player isn't flapping their wings
+                if (! FlyingModel.bFlappingWings) {
+                    //if both of the grips are being pressed
+                    if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.Touch) > 0.0f && OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger, OVRInput.Controller.Touch) > 0.0f) {
+                        //check if they're flapping their wings
+                        FlapWingsCheck();
+                        //if they are flapping their wings
+                        if (FlyingModel.bFlappingWings) {
+                            //Fly time
+                            GameController.Singleton.Fly();
+                        }
+                    }
+                }
+            }
+        }
         
         if (GameController.Singleton.controllerSwitch != 0) {
 
@@ -89,6 +135,19 @@ public class Flapping : MonoBehaviour {
                     
                     //to make sure they're in the ground
                     BirdContainer.transform.position = new Vector3(BirdContainer.transform.position.x, BirdContainer.transform.position.y - 0.025f, BirdContainer.transform.position.z);
+                
+                    //Hide the fast wind streaks from in front
+                    FlyingModel.minWind.SetActive(false);
+                    FlyingModel.medWind.SetActive(false);
+                    FlyingModel.maxWind.SetActive(false);
+
+                    //no more wind sound
+                    FlyingModel.WindSound.volume = 0.0f;
+
+                    //no more wing trails
+                    FasterSpeedTrails.SetActive(false);
+                    MediumSpeedTrails.SetActive(false);
+                    ExtendedWingTrails.SetActive(false);
                 }
 
                 //make sure flap text is not there
@@ -179,15 +238,16 @@ public class Flapping : MonoBehaviour {
         //if the player isn't flapping their wings
         if (! FlyingModel.bFlappingWings) {
 
-            FlapWingsCheck();
-            /*//if both of the grips are being pressed
+            //FlapWingsCheck();
+            //if both of the grips are being pressed
 			if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.Touch) > 0.0f &&
 				OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger, OVRInput.Controller.Touch) > 0.0f) {
 					//check if they're flapping their wings
                     FlapWingsCheck();
-			}*/
+			}
             
 
+        //if the player is flapping their wings
         } else {
 
             //if the flapping animation isn't playing
@@ -242,7 +302,6 @@ public class Flapping : MonoBehaviour {
 
         //Set the birds orientation
         Bird.transform.rotation = Quaternion.Lerp(Bird.transform.rotation, Quaternion.Euler(FlyingModel.pitchValue, FlyingModel.yawValue, 0.0f), 0.02f);
-        
         CameraFollow();
 
         //if the bird is flapping wings or diving
@@ -434,7 +493,7 @@ public class Flapping : MonoBehaviour {
                 FlyingModel.rollValue = ((Mathf.Abs(RC.transform.eulerAngles.x - 360) + LC.transform.eulerAngles.x)) / 2.0f;
 
                 //set rotation speed
-                FlyingModel.rotationalSpeed = 0.2f + ((Mathf.Abs(FlyingModel.rollValue) / FlyingModel.rollThreshold) / 3.0f) * 0.1f;
+                FlyingModel.rotationalSpeed = 0.3f + ((Mathf.Abs(FlyingModel.rollValue) / FlyingModel.rollThreshold) / 3.0f) * 0.1f;
 
                 /* turnLeft true */
                 FlyingModel.bTurnLeft = true;
@@ -470,7 +529,7 @@ public class Flapping : MonoBehaviour {
                 FlyingModel.rollValue = (((Mathf.Abs(LC.transform.eulerAngles.x - 360) + RC.transform.eulerAngles.x)) * -1.0f) / 2.0f;
 
                 //set rotation speed
-                FlyingModel.rotationalSpeed = 0.2f + ((Mathf.Abs(FlyingModel.rollValue) / FlyingModel.rollThreshold) / 3.0f) * 0.1f;
+                FlyingModel.rotationalSpeed = 0.3f + ((Mathf.Abs(FlyingModel.rollValue) / FlyingModel.rollThreshold) / 3.0f) * 0.1f;
 
                 /* turnRight true */
                 FlyingModel.bTurnRight = true;

@@ -17,6 +17,10 @@ public class GroundMovementController : MonoBehaviour {
 	public GameObject Bird;
 	protected float speedModifier;
 	public FlyingModel FlyingModel;
+	public float orginalJumpTimer;
+	public float jumpTimer;
+	public float GravityForce;
+	public float OriginalGravity;
 
 	// Use this for initialization
 	void Start () {
@@ -27,10 +31,35 @@ public class GroundMovementController : MonoBehaviour {
 		groundMovementModel.rotationSpeed = 0.30f;
 
 		groundMovementModel.armMovementThreshold = 20.0f;
+
+		orginalJumpTimer = 0.5f;
+		jumpTimer = orginalJumpTimer;
+
+		OriginalGravity = 0.075f;
+		GravityForce = OriginalGravity;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		//if the player is on the ground and they're using the ground controller
+		if (Feet.Singleton.grounded && GameController.Singleton.controllerSwitch == 1) {
+			//check if the player jumps
+			JumpCheck();
+
+		//If the player isn't on the ground, but is still using this ground movement controller
+		} else if (! Feet.Singleton.grounded && GameController.Singleton.controllerSwitch == 1) {
+			//animated jump
+			if (groundMovementModel.bJumping) {
+				GravityForce = OriginalGravity;
+				Jump();
+			} else {
+				jumpTimer = orginalJumpTimer;
+				//Start falling
+				Fall();
+			}
+		}
+
+		//check to see if the player started flying
 		if (GameController.Singleton.controllerSwitch != 1) {
 
 			if (groundMovementModel.bSwitchFromFlying) {
@@ -49,7 +78,7 @@ public class GroundMovementController : MonoBehaviour {
         }
 
 		rotationalCheck();
-		//JumpCheck();
+		
 
 		//if one of the arms isn't higher than the other
 		if (! groundMovementModel.armPositionSet) {
@@ -113,7 +142,7 @@ public class GroundMovementController : MonoBehaviour {
                 if (! groundMovementModel.bJumping) {
 					/* jumping true */
                     groundMovementModel.bJumping = true;
-					Jump();
+					JumpInit();
                 }
 
             } else {
@@ -129,11 +158,22 @@ public class GroundMovementController : MonoBehaviour {
         }
     }
 
+	protected void JumpInit()
+	{
+		//move the player up
+		BirdContainer.transform.Translate(BirdContainer.transform.up * 0.1f);
+	}
 	protected void Jump()
 	{
-		Vector3 moveDirection = Vector3.zero;
-		moveDirection.y += groundMovementModel.bJumpHeight;
-		playerController.Move(moveDirection);
+		if (jumpTimer >= 0.0f) {
+			jumpTimer -= Time.deltaTime;
+			//move the player up a little bit
+			BirdContainer.transform.Translate(BirdContainer.transform.up * 1.0f * Time.deltaTime);
+			//also move forward
+			moveWhereLooking();
+		} else {
+			groundMovementModel.bJumping = false;
+		}
 	}
 
 	protected void checkForArmHeightDifference()
@@ -273,17 +313,26 @@ public class GroundMovementController : MonoBehaviour {
 
 		//BirdContainer.transform.Translate(cameraRig.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
 		//Bird.transform.Translate(BirdContainer.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
-		BirdContainer.transform.Translate(Bird.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
+		//BirdContainer.transform.Translate(Bird.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
+		BirdContainer.transform.Translate(cameraRig.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
 	}
 
 	public void Fall()
 	{
-		Vector3 accelerationVector = player.transform.TransformDirection(playerLookingDirection.transform.forward) * (0.055f * groundMovementModel.speedMultiplier);
-		accelerationVector.y -= 0.05f;
-		playerController.Move(accelerationVector);
-		//Vector3 moveDirection = Vector3.zero;
-		//moveDirection.y -= 0.01f;
-		//playerController.Move(moveDirection);
+		//if the model doesn't have it set that the player is falling
+		if (! groundMovementModel.bIsFalling) {
+			//set it to falling
+			groundMovementModel.bIsFalling = true;
+		}
+		
+		//if the gravity is less than 400% the original gravity
+		if (GravityForce < OriginalGravity * 4.0f) {
+			//add more gravity
+			GravityForce += OriginalGravity / 100.0f;
+		}
+
+        //move bird container down 
+        BirdContainer.transform.Translate(- BirdContainer.transform.up * GravityForce * 20.0f * Time.deltaTime);
 	}
 
 	protected void rotateLeftAction()

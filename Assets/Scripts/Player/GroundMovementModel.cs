@@ -27,6 +27,7 @@ public class GroundMovementModel : MonoBehaviour {
 	public float armMovementThreshold;
 	public bool bJumping;
 	public float bJumpHeight = 2.0f;
+	public bool bIsFalling;
 
 	//Player started walking after having been flying
 	public bool bSwitchFromFlying;
