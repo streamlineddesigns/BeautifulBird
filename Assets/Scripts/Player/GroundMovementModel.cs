@@ -31,4 +31,7 @@ public class GroundMovementModel : MonoBehaviour {
 
 	//Player started walking after having been flying
 	public bool bSwitchFromFlying;
+
+	public float GravityForce;
+	public float OriginalGravity;
 }

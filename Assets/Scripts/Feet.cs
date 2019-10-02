@@ -12,14 +12,14 @@ public class Feet : MonoBehaviour {
     }
 
     void OnTriggerEnter(Collider other) {
-        if (other.tag != "Item") {
+        if (other.tag != "Item" && other.tag != "Cloud" && other.tag != "MainCamera") {
             if (grounded != true) {
                 grounded = true;
             }
         }
     }
     void OnTriggerStay(Collider other) {
-        if (other.tag != "Item") {
+        if (other.tag != "Item" && other.tag != "Cloud" && other.tag != "MainCamera") {
             if (grounded != true) {
                 grounded = true;
             }
@@ -27,7 +27,7 @@ public class Feet : MonoBehaviour {
     }
 
     void OnTriggerExit(Collider other) {
-        if (other.tag != "Item") {
+        if (other.tag != "Item" && other.tag != "Cloud" && other.tag != "MainCamera") {
             if (grounded != false) {
                 grounded = false;
             }

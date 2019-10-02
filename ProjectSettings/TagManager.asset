@@ -5,16 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Fly
-  - Limits
-  - UI
-  - Item
-  - Fish
-  - Terrain
-  - Bot
-  - ItemHolder
-  - Water
-  - Bag
   - Bird
+  - Item
+  - Cloud
   layers:
   - Default
   - TransparentFX

@@ -4,22 +4,27 @@ using UnityEngine;
 
 
 public class Cloud : MonoBehaviour {
-    protected Renderer rend;
-    protected AudioSource AudioSource;
-
-    void Start() {
-        rend = GetComponent<Renderer>();
-        AudioSource = GetComponent<AudioSource>();
+    protected GameObject currentFog;
+    protected MeshRenderer MR;
+    void Start()
+    {
+        MR = GetComponent<MeshRenderer>();
+        currentFog = transform.GetChild(0).gameObject;
     }
-    void OnTriggerEnter(Collider other) {
-        if (other.tag == "Player") {
-            rend.enabled = false;
-            AudioSource.Play();
-        }
-    }
-    void OnTriggerExit(Collider other) {
-        if (other.tag == "Player") {
-            rend.enabled = true;
-        }
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Bird"){
+            if (MR.enabled) {
+                //disable the clouds renderer
+                MR.enabled = false;
+                //show the fog
+                currentFog.SetActive(true);
+            } else {
+                //enable the clouds renderer
+                MR.enabled = true;
+                //hide the fog
+                currentFog.SetActive(false);
+            }
+        } 
     }
 }

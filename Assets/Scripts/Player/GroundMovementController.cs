@@ -19,11 +19,14 @@ public class GroundMovementController : MonoBehaviour {
 	public FlyingModel FlyingModel;
 	public float orginalJumpTimer;
 	public float jumpTimer;
-	public float GravityForce;
-	public float OriginalGravity;
+	public float fallForwardTimer;
+	public float originalFallForwardTimer;
+	public float upwardClimbMultiplier;
+	
 
 	// Use this for initialization
 	void Start () {
+		upwardClimbMultiplier = 0.01f;
 		groundMovementModel = GetComponent<GroundMovementModel>();
 		groundMovementModel.timer = groundMovementModel.timeForMoveThreshHold;
 
@@ -32,11 +35,14 @@ public class GroundMovementController : MonoBehaviour {
 
 		groundMovementModel.armMovementThreshold = 20.0f;
 
-		orginalJumpTimer = 0.5f;
+		orginalJumpTimer = 0.65f;
 		jumpTimer = orginalJumpTimer;
 
-		OriginalGravity = 0.075f;
-		GravityForce = OriginalGravity;
+		originalFallForwardTimer =  4.0f;
+		fallForwardTimer = originalFallForwardTimer;
+
+		groundMovementModel.OriginalGravity = 0.025f;
+		groundMovementModel.GravityForce = groundMovementModel.OriginalGravity;
 	}
 	
 	// Update is called once per frame
@@ -50,7 +56,8 @@ public class GroundMovementController : MonoBehaviour {
 		} else if (! Feet.Singleton.grounded && GameController.Singleton.controllerSwitch == 1) {
 			//animated jump
 			if (groundMovementModel.bJumping) {
-				GravityForce = OriginalGravity;
+				groundMovementModel.GravityForce = groundMovementModel.OriginalGravity;
+				fallForwardTimer = originalFallForwardTimer;
 				Jump();
 			} else {
 				jumpTimer = orginalJumpTimer;
@@ -95,6 +102,11 @@ public class GroundMovementController : MonoBehaviour {
 		if (checkForContinuousArmMovement()) {
 			//if continuous movement of the arms is occuring,  move forward
 			moveWhereLooking();
+			//if the feet guard is colliding into an object, the player must be trying to climb a hill
+			if (FeetGuard.Singleton.grounded) {
+				//move them up a little too
+				BirdContainer.transform.Translate(BirdContainer.transform.up * upwardClimbMultiplier);
+			}
 		} else {
 			//if there isn't continuous movement of the arms, then reset everything
 			resetAll();
@@ -168,7 +180,7 @@ public class GroundMovementController : MonoBehaviour {
 		if (jumpTimer >= 0.0f) {
 			jumpTimer -= Time.deltaTime;
 			//move the player up a little bit
-			BirdContainer.transform.Translate(BirdContainer.transform.up * 1.0f * Time.deltaTime);
+			BirdContainer.transform.Translate(BirdContainer.transform.up * 2.0f * Time.deltaTime);
 			//also move forward
 			moveWhereLooking();
 		} else {
@@ -314,7 +326,23 @@ public class GroundMovementController : MonoBehaviour {
 		//BirdContainer.transform.Translate(cameraRig.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
 		//Bird.transform.Translate(BirdContainer.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
 		//BirdContainer.transform.Translate(Bird.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
-		BirdContainer.transform.Translate(cameraRig.transform.forward * (1.0f + speedModifier) * Time.deltaTime);
+		
+		if (FeetGuard.Singleton.grounded) {
+			//move forward half as much
+			//BirdContainer.transform.Translate(cameraRig.transform.forward * (1.0f + speedModifier * 0.1f) * Time.deltaTime);
+			//BirdContainer.transform.Translate(cameraRig.transform.forward * (upwardClimbMultiplier * 0.5f));
+		} else {
+			//move forward the full amount
+			//BirdContainer.transform.Translate(cameraRig.transform.forward * (1.0f + speedModifier * 3.0f) * Time.deltaTime);
+
+			if (groundMovementModel.bIsFalling) {
+				//move forward half the full amount
+				BirdContainer.transform.Translate(cameraRig.transform.forward * (1.0f + speedModifier * 1.0f) * Time.deltaTime);
+			} else {
+				//move forward the full amount
+				BirdContainer.transform.Translate(cameraRig.transform.forward * (1.0f + speedModifier * 3.0f) * Time.deltaTime);
+			}
+		}
 	}
 
 	public void Fall()
@@ -325,14 +353,21 @@ public class GroundMovementController : MonoBehaviour {
 			groundMovementModel.bIsFalling = true;
 		}
 		
-		//if the gravity is less than 400% the original gravity
-		if (GravityForce < OriginalGravity * 4.0f) {
+		//if the gravity is less than 450% the original gravity
+		if (groundMovementModel.GravityForce < groundMovementModel.OriginalGravity * 4.5f) {
 			//add more gravity
-			GravityForce += OriginalGravity / 100.0f;
+			groundMovementModel.GravityForce += groundMovementModel.OriginalGravity / 100.0f;
 		}
 
         //move bird container down 
-        BirdContainer.transform.Translate(- BirdContainer.transform.up * GravityForce * 20.0f * Time.deltaTime);
+        BirdContainer.transform.Translate(- BirdContainer.transform.up * groundMovementModel.GravityForce * 20.0f * Time.deltaTime);
+
+		//if jumping previously, move the bird forward
+		if (fallForwardTimer >= 0.0f) {
+			fallForwardTimer -= Time.deltaTime;
+			//also move forward
+			moveWhereLooking();
+		}
 	}
 
 	protected void rotateLeftAction()

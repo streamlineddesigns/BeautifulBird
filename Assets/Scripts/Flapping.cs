@@ -45,8 +45,8 @@ public class Flapping : MonoBehaviour {
         //thresholds
         FlyingModel.pitchThreshold = 5.0f;
         FlyingModel.rollThreshold = 7.5f;
-        FlyingModel.wingFlapThreshold = 20.0f;//this is rotation
-        FlyingModel.controllerFlapThreshold = 0.075f;//this is height
+        FlyingModel.wingFlapThreshold = 5.0f;//this is rotation
+        FlyingModel.controllerFlapThreshold = 0.05f;//this is height
         FlyingModel.diveThreshold = 50.0f;
 
         //flapping
@@ -57,6 +57,7 @@ public class Flapping : MonoBehaviour {
         FlyingModel.originalFlyingSpeed = 2.5f;
         FlyingModel.flyingSpeed = FlyingModel.originalFlyingSpeed;
         FlyingModel.maxSpeed = 7.0f;
+        FlyingModel.originalMaxSpeed = 7.0f;
         FlyingModel.minSpeed = 0.0f;
         FlyingModel.decelerationSpeedMultipler = 0.008f;
         FlyingModel.accelerationSpeedMultipler = 0.008f;
@@ -97,11 +98,11 @@ public class Flapping : MonoBehaviour {
          */
 
         //if the player is in walking mode
-        if (GameController.Singleton.controllerSwitch == 1.0f) {
+        if (GameController.Singleton.controllerSwitch == 1) {
             //if the player is fallin or jumping
             if (GroundMovementModel.bIsFalling || GroundMovementModel.bJumping) {
                 //if the player isn't flapping their wings
-                if (! FlyingModel.bFlappingWings) {
+                //if (! FlyingModel.bFlappingWings) {
                     //if both of the grips are being pressed
                     if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.Touch) > 0.0f && OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger, OVRInput.Controller.Touch) > 0.0f) {
                         //check if they're flapping their wings
@@ -112,7 +113,7 @@ public class Flapping : MonoBehaviour {
                             GameController.Singleton.Fly();
                         }
                     }
-                }
+                //}
             }
         }
         
@@ -301,7 +302,8 @@ public class Flapping : MonoBehaviour {
         }
 
         //Set the birds orientation
-        Bird.transform.rotation = Quaternion.Lerp(Bird.transform.rotation, Quaternion.Euler(FlyingModel.pitchValue, FlyingModel.yawValue, 0.0f), 0.02f);
+        Bird.transform.rotation = Quaternion.Lerp(Bird.transform.rotation, Quaternion.Euler(FlyingModel.pitchValue, FlyingModel.yawValue, FlyingModel.rollValue), 0.02f);
+        //Bird.transform.rotation = Quaternion.Lerp(Bird.transform.rotation, Quaternion.Euler(FlyingModel.pitchValue, FlyingModel.yawValue, 0.0f), 0.02f);
         CameraFollow();
 
         //if the bird is flapping wings or diving

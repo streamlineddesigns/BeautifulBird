@@ -27,7 +27,7 @@ public class GameController : MonoBehaviour {
 
     void Start() 
     {
-        
+        Application.targetFrameRate = 72;
     }
 
     void Update()
@@ -60,6 +60,7 @@ public class GameController : MonoBehaviour {
     public void SwitchControllers()
     {
         if (Feet.Singleton.grounded) {
+            GroundMovementModel.GravityForce = GroundMovementModel.OriginalGravity;
             controllerSwitch = 1;
             flyingCamera.SetActive(false);
             walkingCamera.SetActive(true);

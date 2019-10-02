@@ -15,6 +15,7 @@ public class FlyingModel : MonoBehaviour {
     public float flyingSpeed;
     public float originalFlyingSpeed;
     public float maxSpeed;
+    public float originalMaxSpeed;
     public float minSpeed;
     public float decelerationSpeedMultipler;
     public float accelerationSpeedMultipler;

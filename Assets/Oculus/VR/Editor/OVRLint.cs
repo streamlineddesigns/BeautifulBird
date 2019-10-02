@@ -658,7 +658,7 @@ public class OVRLint : EditorWindow
 
 		// Check that compileSDKVersion meets minimal version 26 as required for Quest's headtracking feature
 		// Unity Sets compileSDKVersion in Gradle as the value used in targetSdkVersion
-		AndroidSdkVersions requiredAndroidTargetSdkVersion = AndroidSdkVersions.AndroidApiLevel23;
+		AndroidSdkVersions requiredAndroidTargetSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
 		if (OVRDeviceSelector.isTargetDeviceQuest &&
 			(int)PlayerSettings.Android.targetSdkVersion < (int)requiredAndroidTargetSdkVersion)
 		{
